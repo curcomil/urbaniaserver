@@ -1,9 +1,8 @@
-import User from "../models/user.model.js"; // Asegúrate de importar el modelo correctamente
+import User from "../models/user.model.js";
 
-// Obtener todos los usuarios
 export const getUsers = async (req, res) => {
   try {
-    const users = await User.find(); // Trae todos los usuarios
+    const users = await User.find();
     res.status(200).json(users);
   } catch (error) {
     res.status(500).json({ message: "Error al obtener los usuarios", error });
@@ -30,12 +29,12 @@ export const getUserById = async (req, res) => {
 export const updateUserById = async (req, res) => {
   try {
     const { id } = req.params;
-    const { nombre, apellidos, foto, correo, cargo } = req.body; // Obtén los campos del body
+    const { nombre, apellidos, foto, correo, cargo } = req.body;
 
     const updatedUser = await User.findByIdAndUpdate(
       id,
-      { nombre, apellidos, foto, correo, cargo }, // Campos a actualizar
-      { new: true } // Para devolver el documento actualizado
+      { nombre, apellidos, foto, correo, cargo },
+      { new: true }
     );
 
     if (!updatedUser) {
