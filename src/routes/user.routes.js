@@ -1,16 +1,24 @@
-import express from "express";
+import { Router } from "express";
 import {
-  getUsers,
-  getUserById,
-  updateUserById,
-  deleteUserById,
-} from "../controllers/user.controller.js";
+  login,
+  logout,
+  register,
+  verifyToken,
+  editUser,
+  getUserProfile,
+  getAllUsers,
+} from "../controllers/auth.controller.js";
+import { validateSchema } from "../middlewares/validator.middlewares.js";
+import { loginSchema, registerSchema } from "../schemas/auth.schema.js";
 
-const router = express.Router();
+const router = Router();
 
-router.get("/users", getUsers); // Ruta para obtener todos los usuarios
-router.get("/users/:id", getUserById); // Ruta para obtener un usuario por ID
-router.put("/users/:id", updateUserById); // Ruta para actualizar un usuario por ID
-router.delete("/users/:id", deleteUserById); // Ruta para eliminar un usuario por ID
+router.post("/register", validateSchema(registerSchema), register);
+router.post("/login", validateSchema(loginSchema), login);
+router.get("/verify", verifyToken);
+router.put("/update", editUser);
+router.post("/logout", logout);
+router.get("/profile", getUserProfile);
+router.get("/allUsers", getAllUsers);
 
 export default router;
