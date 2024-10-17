@@ -7,6 +7,7 @@ import {
   editUser,
   getUserProfile,
   getAllUsers,
+  deleteuser,
 } from "../controllers/auth.controller.js";
 import { validateSchema } from "../middlewares/validator.middlewares.js";
 import { loginSchema, registerSchema } from "../schemas/auth.schema.js";
@@ -20,5 +21,6 @@ router.put("/update/:id", editUser);
 router.post("/logout", logout);
 router.get("/profile", getUserProfile);
 router.get("/allUsers", getAllUsers);
+router.delete("/deleteUSer/:id", deleteuser);
 
 export default router;
