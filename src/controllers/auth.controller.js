@@ -139,7 +139,7 @@ export const getUserProfile = async (req, res) => {
 
 export const editUser = async (req, res) => {
   try {
-    const { nombre, apellido, puesto } = req.body; // Solo los campos del esquema
+    const { nombre, apellido, perfil, vista_de_obra } = req.body; // Solo los campos del esquema
     const { id } = req.params; // ID del usuario a editar
 
     try {
