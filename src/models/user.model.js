@@ -1,41 +1,17 @@
 import mongoose from "mongoose";
 
-const userSchema = new mongoose.Schema(
-  {
-    nombre: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-    apellidos: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-    foto: {
-      type: String,
-      default: "https://example.com/default-avatar.png",
-    },
-    correo: {
-      type: String,
-      required: true,
-      unique: true,
-      trim: true,
-      lowercase: true,
-      match: [/.+\@.+\..+/, "El correo no es válido"],
-    },
-    cargo: {
-      type: String,
-      required: true,
-      enum: ["Administrador", "Gerente", "Empleado", "Otro"],
-      default: "Empleado",
-    },
-  },
-  {
-    timestamps: true,
-  }
-);
+const userSchema = new mongoose.Schema({
+  username: { type: String, required: true },
+  email: { type: String, required: true, unique: true },
+  password: { type: String, required: true },
+  nombre: { type: String },
+  apellido: { type: String },
+  puesto: { type: String },
+  createdAt: { type: Date, default: Date.now },
+  updatedAt: { type: Date, default: Date.now },
+  isAdmin: { type: Boolean, default: false },
+});
 
+// Asegúrate de exportar el modelo
 const User = mongoose.model("User", userSchema);
-
 export default User;
