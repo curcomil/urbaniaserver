@@ -25,16 +25,11 @@ export const register = async (req, res) => {
 
     const token = await createAccessToken({ id: userSaved._id });
 
-    res.cookie("token", token, {
-      httpOnly: process.env.NODE_ENV !== "development",
-      secure: true,
-      sameSite: "none",
-    });
-
     res.json({
       id: userSaved._id,
       username: userSaved.username,
       email: userSaved.email,
+      token: token,
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -51,28 +46,19 @@ export const login = async (req, res) => {
 
     const isMatch = await bcrypt.compare(password, userFound.password);
     if (!isMatch) {
-      return res.status(400).json({ message: ["The password is incorrect"] });
+      return res
+        .status(400)
+        .json({ message: ["The password or email is incorrect"] });
     }
 
     const token = await createAccessToken({ id: userFound._id });
-
-    res.cookie("token", token, {
-      httpOnly: process.env.NODE_ENV !== "development",
-      secure: true,
-      sameSite: "none",
-    });
-    if (userFound.isAdmin == true) {
-      res.cookie("isadmin", userFound.isAdmin, {
-        sameSite: true,
-        secure: true,
-      });
-    }
 
     res.json({
       id: userFound._id,
       username: userFound.username,
       email: userFound.email,
-      ...(userFound.isAdmin !== undefined && { isAdmin: userFound.isAdmin }),
+      token: token,
+      isadmin: userFound.isAdmin ? userFound.isAdmin : undefined,
     });
   } catch (error) {
     return res.status(500).json({ message: error.message });
@@ -80,8 +66,9 @@ export const login = async (req, res) => {
 };
 
 export const verifyToken = async (req, res) => {
-  const { token } = req.cookies;
-  if (!token) return res.send(false);
+  const authHeader = req.headers["authorization"];
+  const token = authHeader && authHeader.split(" ")[1];
+  if (!token) return res.send("sin token proporcinado");
 
   jwt.verify(token, TOKEN_SECRET, async (error, user) => {
     if (error) return res.sendStatus(401);
