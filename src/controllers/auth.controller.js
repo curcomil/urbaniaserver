@@ -6,7 +6,7 @@ import bcrypt from "bcryptjs";
 
 export const register = async (req, res) => {
   try {
-    const { username, email, password } = req.body;
+    const { email, password } = req.body;
 
     const userFound = await User.findOne({ email });
 
@@ -16,7 +16,6 @@ export const register = async (req, res) => {
     const passwordHash = await bcrypt.hash(password, 10);
 
     const newUser = new User({
-      username,
       email,
       password: passwordHash,
     });
@@ -27,7 +26,6 @@ export const register = async (req, res) => {
 
     res.json({
       id: userSaved._id,
-      username: userSaved.username,
       email: userSaved.email,
       token: token,
     });
@@ -55,7 +53,6 @@ export const login = async (req, res) => {
 
     res.json({
       id: userFound._id,
-      username: userFound.username,
       email: userFound.email,
       token: token,
       isadmin: userFound.isAdmin ? userFound.isAdmin : undefined,
@@ -78,7 +75,6 @@ export const verifyToken = async (req, res) => {
 
     return res.json({
       id: userFound._id,
-      username: userFound.username,
       email: userFound.email,
     });
   });
@@ -125,11 +121,11 @@ export const getUserProfile = async (req, res) => {
 
         return res.json({
           id: userFound._id,
-          username: userFound.username,
           email: userFound.email,
           nombre: userFound.nombre,
           apellido: userFound.apellido,
           puesto: userFound.puesto,
+          vista_de_obra: userFound.vista_de_obra,
           isAdmin: userFound.isAdmin,
         });
       } catch (error) {
@@ -152,7 +148,8 @@ export const editUser = async (req, res) => {
         {
           nombre,
           apellido,
-          puesto,
+          perfil,
+          vista_de_obra,
           updatedAt: new Date(),
         },
         { new: true }
@@ -168,7 +165,8 @@ export const editUser = async (req, res) => {
         email: updatedUser.email,
         nombre: updatedUser.nombre,
         apellido: updatedUser.apellido,
-        puesto: updatedUser.puesto,
+        perfil: updatedUser.perfil,
+        vista_de_obra: updatedUser.vista_de_obra,
         isAdmin: updatedUser.isAdmin,
       });
     } catch (error) {
