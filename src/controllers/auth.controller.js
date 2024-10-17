@@ -144,47 +144,36 @@ export const getUserProfile = async (req, res) => {
 export const editUser = async (req, res) => {
   try {
     const { nombre, apellido, puesto } = req.body; // Solo los campos del esquema
-    const authHeader = req.headers["authorization"];
-    const token = authHeader && authHeader.split(" ")[1];
+    const { id } = req.params; // ID del usuario a editar
 
-    if (!token) {
-      return res.status(401).json({ message: "Unauthorized" });
+    try {
+      const updatedUser = await User.findByIdAndUpdate(
+        id,
+        {
+          nombre,
+          apellido,
+          puesto,
+          updatedAt: new Date(),
+        },
+        { new: true }
+      );
+
+      if (!updatedUser) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      return res.json({
+        id: updatedUser._id,
+        username: updatedUser.username,
+        email: updatedUser.email,
+        nombre: updatedUser.nombre,
+        apellido: updatedUser.apellido,
+        puesto: updatedUser.puesto,
+        isAdmin: updatedUser.isAdmin,
+      });
+    } catch (error) {
+      return res.status(500).json({ message: error.message });
     }
-
-    jwt.verify(token, TOKEN_SECRET, async (error, user) => {
-      if (error) {
-        return res.status(401).json({ message: "Unauthorized" });
-      }
-
-      try {
-        const updatedUser = await User.findByIdAndUpdate(
-          user.id,
-          {
-            nombre,
-            apellido,
-            puesto,
-            updatedAt: new Date(),
-          },
-          { new: true }
-        );
-
-        if (!updatedUser) {
-          return res.status(404).json({ message: "User not found" });
-        }
-
-        return res.json({
-          id: updatedUser._id,
-          username: updatedUser.username,
-          email: updatedUser.email,
-          nombre: updatedUser.nombre,
-          apellido: updatedUser.apellido,
-          puesto: updatedUser.puesto,
-          isAdmin: updatedUser.isAdmin,
-        });
-      } catch (error) {
-        return res.status(500).json({ message: error.message });
-      }
-    });
   } catch (error) {
     return res.status(500).json({ message: error.message });
   }
