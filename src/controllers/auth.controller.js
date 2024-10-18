@@ -6,27 +6,42 @@ import bcrypt from "bcryptjs";
 
 export const register = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { email, password, nombre, apellido, perfil, vista_de_obra } =
+      req.body;
 
+    // Verificar si el usuario ya existe
     const userFound = await User.findOne({ email });
 
     if (userFound)
-      return res.status(400).json({ message: ["The email is already in use"] });
+      return res.status(400).json({ message: ["El email ya está en uso"] });
 
+    // Encriptar la contraseña
     const passwordHash = await bcrypt.hash(password, 10);
 
+    // Crear un nuevo usuario con los campos adicionales
     const newUser = new User({
       email,
       password: passwordHash,
+      nombre, // Añadir campo nombre
+      apellido, // Añadir campo apellido
+      perfil, // Añadir campo perfil
+      vista_de_obra, // Añadir campo vista de obra
     });
 
+    // Guardar el usuario
     const userSaved = await newUser.save();
 
+    // Crear un token de acceso
     const token = await createAccessToken({ id: userSaved._id });
 
+    // Devolver la respuesta con los datos del usuario y el token
     res.json({
       id: userSaved._id,
       email: userSaved.email,
+      nombre: userSaved.nombre, // Incluir nombre
+      apellido: userSaved.apellido, // Incluir apellido
+      perfil: userSaved.perfil, // Incluir perfil
+      vista_de_obra: userSaved.vista_de_obra, // Incluir vista de obra
       token: token,
     });
   } catch (error) {
