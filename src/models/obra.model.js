@@ -14,9 +14,16 @@ const obraSchema = new mongoose.Schema({
   },
   numero_de_etapas: { type: Number, required: true },
   numero_de_edificios: { type: Number, required: true },
-  numero_de_niveles: { type: Number, required: true },
   fecha_de_inicio: { type: Date, required: true },
   fecha_de_fin: { type: Date, required: true },
+
+  // Checkboxes basados en la imagen
+  azotea: { type: Boolean, default: false },
+  agregar_nivel: { type: Boolean, default: false },
+  nivel_1: { type: Boolean, default: false },
+  planta_baja: { type: Boolean, default: false },
+  semisotano: { type: Boolean, default: false },
+  agregar_sotano: { type: Boolean, default: false },
 });
 
 const Obra = mongoose.model("Obra", obraSchema);
