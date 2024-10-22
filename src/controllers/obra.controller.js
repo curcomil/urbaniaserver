@@ -10,9 +10,16 @@ export const createObra = async (req, res) => {
       direccion,
       numero_de_etapas,
       numero_de_edificios,
-      numero_de_niveles,
       fecha_de_inicio,
       fecha_de_fin,
+
+      // Checkbox options
+      azotea,
+      agregar_nivel,
+      nivel_1,
+      planta_baja,
+      semisotano,
+      agregar_sotano,
     } = req.body;
 
     // Formatear las fechas para que sólo incluyan el formato YYYY-MM-DD
@@ -27,9 +34,16 @@ export const createObra = async (req, res) => {
       direccion,
       numero_de_etapas,
       numero_de_edificios,
-      numero_de_niveles,
       fecha_de_inicio: formattedFechaDeInicio, // Usar la fecha formateada
       fecha_de_fin: formattedFechaDeFin, // Usar la fecha formateada
+
+      // Checkbox options
+      azotea,
+      agregar_nivel,
+      nivel_1,
+      planta_baja,
+      semisotano,
+      agregar_sotano,
     });
 
     // Guardar la obra en la base de datos
