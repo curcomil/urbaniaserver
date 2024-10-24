@@ -7,19 +7,16 @@ export const createObra = async (req, res) => {
       nombre_del_proyecto,
       m2_construccion,
       m2_vendibles,
-      direccion,
+      direccion, // Se espera que sea un objeto
       numero_de_etapas,
       numero_de_edificios,
       fecha_de_inicio,
       fecha_de_fin,
-
-      // Checkbox options
       azotea,
       agregar_nivel,
-      nivel_1,
+      agregar_sotano,
       planta_baja,
       semisotano,
-      agregar_sotano,
     } = req.body;
 
     // Formatear las fechas para que sólo incluyan el formato YYYY-MM-DD
@@ -31,19 +28,16 @@ export const createObra = async (req, res) => {
       nombre_del_proyecto,
       m2_construccion,
       m2_vendibles,
-      direccion,
+      direccion, // Usar el objeto direccion recibido
       numero_de_etapas,
       numero_de_edificios,
       fecha_de_inicio: formattedFechaDeInicio, // Usar la fecha formateada
       fecha_de_fin: formattedFechaDeFin, // Usar la fecha formateada
-
-      // Checkbox options
       azotea,
       agregar_nivel,
-      nivel_1,
+      agregar_sotano,
       planta_baja,
       semisotano,
-      agregar_sotano,
     });
 
     // Guardar la obra en la base de datos

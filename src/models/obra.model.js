@@ -17,13 +17,11 @@ const obraSchema = new mongoose.Schema({
   fecha_de_inicio: { type: Date, required: true },
   fecha_de_fin: { type: Date, required: true },
 
-  // Checkboxes basados en la imagen
   azotea: { type: Boolean, default: false },
-  agregar_nivel: { type: Boolean, default: false },
-  nivel_1: { type: Boolean, default: false },
+  agregar_nivel: { type: Number, required: true },
+  agregar_sotano: { type: Number, required: true },
   planta_baja: { type: Boolean, default: false },
   semisotano: { type: Boolean, default: false },
-  agregar_sotano: { type: Boolean, default: false },
 });
 
 const Obra = mongoose.model("Obra", obraSchema);
