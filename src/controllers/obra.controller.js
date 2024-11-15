@@ -1,50 +1,24 @@
-import Obra from "../models/obra.model.js"; // Asegúrate de que la ruta al modelo sea correcta
+import Obra from "../models/db.model.js";
+import { crearProyecto } from "../libs/new_proyect_funtion.js";
 
-// Crear una nueva obra
-export const createObra = async (req, res) => {
+export const new_proyect = async (req, res) => {
   try {
-    const {
-      nombre_del_proyecto,
-      m2_construccion,
-      m2_vendibles,
-      direccion, // Se espera que sea un objeto
-      numero_de_etapas,
-      numero_de_edificios,
-      fecha_de_inicio,
-      fecha_de_fin,
-      azotea,
-      agregar_nivel,
-      agregar_sotano,
-      planta_baja,
-      semisotano,
-    } = req.body;
-
-    // Formatear las fechas para que sólo incluyan el formato YYYY-MM-DD
-    const formattedFechaDeInicio = fecha_de_inicio.split("T")[0]; // Solo la parte de la fecha
-    const formattedFechaDeFin = fecha_de_fin.split("T")[0];
-
-    // Crear nueva obra
-    const nuevaObra = new Obra({
-      nombre_del_proyecto,
-      m2_construccion,
-      m2_vendibles,
-      direccion, // Usar el objeto direccion recibido
-      numero_de_etapas,
-      numero_de_edificios,
-      fecha_de_inicio: formattedFechaDeInicio, // Usar la fecha formateada
-      fecha_de_fin: formattedFechaDeFin, // Usar la fecha formateada
-      azotea,
-      agregar_nivel,
-      agregar_sotano,
-      planta_baja,
-      semisotano,
+    const { etapas, edificios, niveles, sotanos, nombre } = req.body;
+    const obra_nueva = crearProyecto(
+      etapas,
+      edificios,
+      niveles,
+      sotanos,
+      nombre
+    );
+    const nuevaObra = new Obra(obra_nueva);
+    const save = await nuevaObra.save();
+    res.status(201).json({
+      message: "Nueva obra creada",
+      obra: save,
     });
-
-    // Guardar la obra en la base de datos
-    const obraGuardada = await nuevaObra.save();
-    res.status(201).json(obraGuardada);
   } catch (error) {
-    console.error(error); // Mostrar el error completo en la consola
+    console.error(error);
     res.status(500).json({ message: "Error al crear la obra", error });
   }
 };

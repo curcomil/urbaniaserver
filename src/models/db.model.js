@@ -1,4 +1,6 @@
-const dbSchema = {
+import mongoose from "mongoose";
+
+const dbSchema = new mongoose.Schema({
   Nombre: { type: String, required: true },
   Sotanos: { type: Number, required: true },
   Niveles: { type: Number, required: true },
@@ -64,4 +66,7 @@ const dbSchema = {
       ],
     },
   ],
-};
+});
+
+const Obra = mongoose.model("Obra", dbSchema);
+export default Obra;

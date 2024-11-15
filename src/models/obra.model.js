@@ -22,6 +22,3 @@ const obraSchema = new mongoose.Schema({
   fecha_de_inicio: { type: Date, required: true },
   fecha_de_fin: { type: Date, required: true },
 });
-
-const Obra = mongoose.model("Obra", obraSchema);
-export default Obra;
