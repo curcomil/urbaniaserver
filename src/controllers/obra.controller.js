@@ -3,19 +3,37 @@ import { crearProyecto } from "../libs/new_proyect_funtion.js";
 
 export const new_proyect = async (req, res) => {
   try {
-    const { etapas, edificios, niveles, sotanos, nombre } = req.body;
+    const {
+      numero_de_etapas,
+      numero_de_edificios,
+      agregar_nivel,
+      agregar_sotano,
+      nombre_del_proyecto,
+      fecha_de_inicio,
+      fecha_de_fin,
+      m2_vendibles,
+      m2_construccion,
+      direccion,
+    } = req.body;
     const obra_nueva = crearProyecto(
-      etapas,
-      edificios,
-      niveles,
-      sotanos,
-      nombre
+      numero_de_etapas,
+      numero_de_edificios,
+      agregar_nivel,
+      agregar_sotano,
+      nombre_del_proyecto,
+      fecha_de_inicio,
+      fecha_de_fin,
+      m2_vendibles,
+      m2_construccion,
+      direccion
     );
     const nuevaObra = new Obra(obra_nueva);
     const save = await nuevaObra.save();
+    console.log("Nueva obra creada");
+
     res.status(201).json({
       message: "Nueva obra creada",
-      obra: save,
+      obra: save._id,
     });
   } catch (error) {
     console.error(error);
@@ -41,6 +59,7 @@ export const getObraById = async (req, res) => {
     if (!obra) {
       return res.status(404).json({ message: "Obra no encontrada" });
     }
+
     res.status(200).json(obra);
   } catch (error) {
     res.status(500).json({ message: "Error al obtener la obra", error });

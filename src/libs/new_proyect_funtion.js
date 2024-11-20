@@ -9,7 +9,12 @@ export const crearProyecto = (
   numEdificiosPorEtapa,
   nivelesPorEdificio,
   sotanos,
-  nombre
+  nombre,
+  fecha_de_inicio,
+  fecha_de_fin,
+  m2_vendibles,
+  m2_construccion,
+  direccion
 ) => {
   const obtenerFechaActual = () => new Date().toISOString().split("T")[0];
 
@@ -152,13 +157,18 @@ export const crearProyecto = (
 
   return {
     Nombre: nombre,
+    Datos: {
+      M2_Construccion: m2_construccion,
+      M2_Vendibles: m2_vendibles,
+      Direccion: direccion,
+    },
     Sotanos: sotanos,
     Niveles: nivelesPorEdificio,
     Edificios: nivelesPorEdificio,
     Fechas: {
       Plan: {
-        Inicio: obtenerFechaActual(),
-        Fin: obtenerFechaActual(),
+        Inicio: fecha_de_inicio,
+        Fin: fecha_de_fin,
       },
       Ejecucion: {
         Inicio: obtenerFechaActual(),

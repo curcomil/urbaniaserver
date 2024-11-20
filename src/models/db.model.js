@@ -2,6 +2,11 @@ import mongoose from "mongoose";
 
 const dbSchema = new mongoose.Schema({
   Nombre: { type: String, required: true },
+  Datos: {
+    M2_Construccion: { type: Number },
+    M2_Vendibles: { type: Number },
+    Direccion: {},
+  },
   Sotanos: { type: Number, required: true },
   Niveles: { type: Number, required: true },
   Edificios: { type: Number, required: true },
