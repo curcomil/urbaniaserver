@@ -23,3 +23,17 @@ export const auth = async (req, res, next) => {
     return res.status(401).json({ message: "Token inválido" });
   }
 };
+
+export const verifyRole = (roles) => {
+  return (req, res, next) => {
+    const { perfil } = req.user; // Asumiendo que `req.user` tiene la información del usuario autenticado
+
+    if (!roles.includes(perfil)) {
+      return res
+        .status(403)
+        .json({ message: "No tienes permiso para acceder a esta ruta" });
+    }
+
+    next();
+  };
+};

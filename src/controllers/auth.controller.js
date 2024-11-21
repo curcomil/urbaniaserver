@@ -154,41 +154,32 @@ export const getUserProfile = async (req, res) => {
 
 export const editUser = async (req, res) => {
   try {
-    const { nombre, apellido, perfil, vista_de_obra } = req.body; // Solo los campos del esquema
-    const { id } = req.params; // ID del usuario a editar
+    const { nombre, apellido, perfil, vista_de_obra } = req.body;
+    const { id } = req.params;
 
-    try {
-      const updatedUser = await User.findByIdAndUpdate(
-        id,
-        {
-          nombre,
-          apellido,
-          perfil,
-          vista_de_obra,
-          updatedAt: new Date(),
-        },
-        { new: true }
-      );
+    const updatedUser = await User.findByIdAndUpdate(
+      id,
+      {
+        nombre,
+        apellido,
+        perfil,
+        vista_de_obra:
+          perfil === "Director" || perfil === "Coordinación"
+            ? []
+            : vista_de_obra,
+        updatedAt: new Date(),
+      },
+      { new: true }
+    );
 
-      if (!updatedUser) {
-        return res.status(404).json({ message: "User not found" });
-      }
-
-      return res.json({
-        id: updatedUser._id,
-        username: updatedUser.username,
-        email: updatedUser.email,
-        nombre: updatedUser.nombre,
-        apellido: updatedUser.apellido,
-        perfil: updatedUser.perfil,
-        vista_de_obra: updatedUser.vista_de_obra,
-        isAdmin: updatedUser.isAdmin,
-      });
-    } catch (error) {
-      return res.status(500).json({ message: error.message });
+    if (!updatedUser) {
+      return res.status(404).json({ message: "Usuario no encontrado" });
     }
+
+    return res.json(updatedUser);
   } catch (error) {
-    return res.status(500).json({ message: error.message });
+    console.error("Error al editar usuario:", error);
+    return res.status(500).json({ message: "Error al editar usuario" });
   }
 };
 

@@ -65,3 +65,29 @@ export const getObraById = async (req, res) => {
     res.status(500).json({ message: "Error al obtener la obra", error });
   }
 };
+
+export const getObrasByUser = async (req, res) => {
+  try {
+    const { id } = req.user; // El ID del usuario actual
+    const user = await User.findById(id).populate("vista_de_obra");
+
+    if (!user) {
+      return res.status(404).json({ message: "Usuario no encontrado" });
+    }
+
+    let obras;
+
+    // Si el perfil es "Director" o "Coordinación", devuelve todas las obras
+    if (["Director", "Coordinación"].includes(user.perfil)) {
+      obras = await Obra.find();
+    } else {
+      // Para otros roles, devuelve solo las obras asignadas
+      obras = user.vista_de_obra;
+    }
+
+    return res.json(obras);
+  } catch (error) {
+    console.error("Error al obtener las obras:", error);
+    return res.status(500).json({ message: "Error al obtener las obras" });
+  }
+};
