@@ -2,6 +2,7 @@ import User from "../models/user.model.js";
 import jwt from "jsonwebtoken";
 import { TOKEN_SECRET } from "../config.js";
 import { createAccessToken } from "../libs/jwt.js";
+import Obra from "../models/db.model.js";
 import bcrypt from "bcryptjs";
 
 export const register = async (req, res) => {
@@ -139,7 +140,7 @@ export const getUserProfile = async (req, res) => {
           email: userFound.email,
           nombre: userFound.nombre,
           apellido: userFound.apellido,
-          puesto: userFound.puesto,
+          perfil: userFound.perfil,
           vista_de_obra: userFound.vista_de_obra,
           isAdmin: userFound.isAdmin,
         });
@@ -164,9 +165,9 @@ export const editUser = async (req, res) => {
         apellido,
         perfil,
         vista_de_obra:
-          perfil === "Director" || perfil === "Coordinación"
-            ? []
-            : vista_de_obra,
+          perfil === "Director" || perfil === "Coordinador"
+            ? [] // Si es "Director" o "Coordinador", no asignamos obras
+            : vista_de_obra.map((obraId) => mongoose.Types.ObjectId(obraId)), // Convertimos a ObjectId
         updatedAt: new Date(),
       },
       { new: true }

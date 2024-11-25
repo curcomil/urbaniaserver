@@ -5,19 +5,25 @@ import {
   new_proyect,
   getObrasByUser,
 } from "../controllers/obra.controller.js";
-import { verifyRole } from "../middlewares/auth.middleware.js";
+import { auth, verifyRole } from "../middlewares/auth.middleware.js";
 
 const router = express.Router();
 
-// Ruta para obtener todas las obras
-router.get("/allObras", getAllObras);
+// Ruta para obtener todas las obras (protegida, solo para Director y Coordinación)
+router.get(
+  "/allObras",
+  auth,
+  verifyRole(["Director", "Coordinador"]),
+  getAllObras
+);
 
-// Ruta para obtener una obra por ID
-router.get("/obras/:id", getObraById);
+// Ruta para obtener una obra por ID (protegida, accesible para todos los perfiles autenticados)
+router.get("/obras/:id", auth, getObraById);
 
-// Ruta para crear una nueva obra
-router.post("/nueva", new_proyect);
+// Ruta para crear una nueva obra (protegida, solo para Director y Coordinación)
+router.post("/nueva", auth, new_proyect);
 
-router.get("/obras", verifyRole(["Director", "Coordinación"]), getObrasByUser);
+// Ruta para obtener las obras asignadas al usuario (protegida)
+router.get("/mis-obras", auth, getObrasByUser);
 
 export default router;
