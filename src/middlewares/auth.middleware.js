@@ -4,31 +4,29 @@ import User from "../models/user.model.js";
 
 // Middleware de autenticación
 export const auth = async (req, res, next) => {
-  const token = req.cookies.token; // Obtén el token de las cookies
+  // Obtener el token del encabezado Authorization
+  const authHeader = req.headers.authorization;
+  const token =
+    authHeader && authHeader.startsWith("Bearer")
+      ? authHeader.split(" ")[1]
+      : null;
 
   if (!token) {
     return res.status(401).json({ message: "Token no proporcionado" });
   }
 
   try {
-    // Decodifica el token
-    const decoded = jwt.verify(token, TOKEN_SECRET);
-
-    // Busca al usuario por ID
+    const decoded = jwt.verify(token, TOKEN_SECRET); // Verificar el token
     const user = await User.findById(decoded.id);
 
-    // Verifica si el usuario existe
     if (!user) {
       return res.status(401).json({ message: "Usuario no encontrado" });
     }
 
-    // Asigna el usuario autenticado a `req.user`
-    req.user = user;
-
-    console.log("Usuario autenticado:", req.user); // Registro para depuración
-    next(); // Continúa con el siguiente middleware
+    req.user = user; // Asignar el usuario a la solicitud
+    next();
   } catch (error) {
-    return res.status(401).json({ message: "Token inválido o expirado" });
+    return res.status(401).json({ message: "Token inválido" });
   }
 };
 
