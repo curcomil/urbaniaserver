@@ -159,30 +159,75 @@ export const editUser = async (req, res) => {
     const { nombre, apellido, perfil, vista_de_obra } = req.body;
     const { id } = req.params;
 
+    // Validar si el usuario existe
+    const user = await User.findById(id);
+    if (!user) {
+      return res.status(404).json({ message: "Usuario no encontrado" });
+    }
+
+    // Convertir y validar vista_de_obra
+    let obrasAsignadas = [];
+    if (perfil !== "Director" && perfil !== "Coordinador") {
+      if (typeof vista_de_obra === "string") {
+        // Convertir cadena separada por comas a arreglo
+        obrasAsignadas = vista_de_obra
+          .split(",")
+          .map((obraId) => obraId.trim());
+      } else if (Array.isArray(vista_de_obra)) {
+        obrasAsignadas = vista_de_obra;
+      } else {
+        return res.status(400).json({
+          message:
+            "El campo vista_de_obra debe ser un arreglo o cadena de IDs válidos",
+        });
+      }
+
+      // Validar que todos los IDs son válidos ObjectIds
+      if (!obrasAsignadas.every((id) => mongoose.Types.ObjectId.isValid(id))) {
+        return res
+          .status(400)
+          .json({ message: "Uno o más IDs de obras no son válidos" });
+      }
+    }
+
+    // Agregar log para depuración
+    console.log("Obras asignadas procesadas:", obrasAsignadas);
+
+    // Verificar que las obras existen en la base de datos
+    const obras = await Obra.find({ _id: { $in: obrasAsignadas } });
+    if (obras.length !== obrasAsignadas.length) {
+      return res.status(400).json({
+        message:
+          "Algunas de las obras seleccionadas no existen en la base de datos",
+      });
+    }
+
+    // Actualizar el usuario
     const updatedUser = await User.findByIdAndUpdate(
       id,
       {
         nombre,
         apellido,
         perfil,
-        vista_de_obra:
-          perfil === "Director" || perfil === "Coordinador"
-            ? [] // Si es "Director" o "Coordinador", no asignamos obras
-            : vista_de_obra.map(
-                (obraId) => new mongoose.Types.ObjectId(obraId)
-              ), // Usamos "new" aquí
+        vista_de_obra: obrasAsignadas,
         updatedAt: new Date(),
       },
-      { new: true } // Retorna el usuario actualizado
+      { new: true } // Retorna el documento actualizado
     );
-
-    if (!updatedUser) {
-      return res.status(404).json({ message: "Usuario no encontrado" });
-    }
 
     return res.json(updatedUser);
   } catch (error) {
     console.error("Error al editar usuario:", error);
+
+    // Manejar errores específicos
+    if (error.message.startsWith("Obra inválida")) {
+      return res.status(400).json({ message: error.message });
+    } else if (
+      error.message.startsWith("Algunas de las obras seleccionadas no existen")
+    ) {
+      return res.status(400).json({ message: error.message });
+    }
+
     return res.status(500).json({ message: "Error al editar usuario" });
   }
 };
