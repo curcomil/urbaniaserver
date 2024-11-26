@@ -4,6 +4,7 @@ import { TOKEN_SECRET } from "../config.js";
 import { createAccessToken } from "../libs/jwt.js";
 import Obra from "../models/db.model.js";
 import bcrypt from "bcryptjs";
+import mongoose from "mongoose";
 
 export const register = async (req, res) => {
   try {
@@ -167,10 +168,12 @@ export const editUser = async (req, res) => {
         vista_de_obra:
           perfil === "Director" || perfil === "Coordinador"
             ? [] // Si es "Director" o "Coordinador", no asignamos obras
-            : vista_de_obra.map((obraId) => mongoose.Types.ObjectId(obraId)), // Convertimos a ObjectId
+            : vista_de_obra.map(
+                (obraId) => new mongoose.Types.ObjectId(obraId)
+              ), // Usamos "new" aquí
         updatedAt: new Date(),
       },
-      { new: true }
+      { new: true } // Retorna el usuario actualizado
     );
 
     if (!updatedUser) {

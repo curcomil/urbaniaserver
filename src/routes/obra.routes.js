@@ -13,7 +13,7 @@ const router = express.Router();
 router.get(
   "/allObras",
   auth,
-  verifyRole(["Director", "Coordinador"]),
+  verifyRole(["Director", "Coordinador", "Control", "Obra"]),
   getAllObras
 );
 
