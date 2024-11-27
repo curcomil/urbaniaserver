@@ -20,14 +20,48 @@ export const register = async (req, res) => {
     // Encriptar la contraseña
     const passwordHash = await bcrypt.hash(password, 10);
 
+    // Procesar y validar vista_de_obra
+    let obrasAsignadas = [];
+    if (perfil !== "Director" && perfil !== "Coordinador") {
+      if (typeof vista_de_obra === "string") {
+        // Convertir cadena separada por comas a arreglo
+        obrasAsignadas = vista_de_obra
+          .split(",")
+          .map((obraId) => obraId.trim());
+      } else if (Array.isArray(vista_de_obra)) {
+        obrasAsignadas = vista_de_obra;
+      } else {
+        return res.status(400).json({
+          message:
+            "El campo vista_de_obra debe ser un arreglo o cadena de IDs válidos",
+        });
+      }
+
+      // Validar que todos los IDs son válidos ObjectIds
+      if (!obrasAsignadas.every((id) => mongoose.Types.ObjectId.isValid(id))) {
+        return res
+          .status(400)
+          .json({ message: "Uno o más IDs de obras no son válidos" });
+      }
+
+      // Verificar que las obras existen en la base de datos
+      const obras = await Obra.find({ _id: { $in: obrasAsignadas } });
+      if (obras.length !== obrasAsignadas.length) {
+        return res.status(400).json({
+          message:
+            "Algunas de las obras seleccionadas no existen en la base de datos",
+        });
+      }
+    }
+
     // Crear un nuevo usuario con los campos adicionales
     const newUser = new User({
       email,
       password: passwordHash,
-      nombre, // Añadir campo nombre
-      apellido, // Añadir campo apellido
-      perfil, // Añadir campo perfil
-      vista_de_obra, // Añadir campo vista de obra
+      nombre,
+      apellido,
+      perfil,
+      vista_de_obra: obrasAsignadas,
     });
 
     // Guardar el usuario
@@ -40,14 +74,15 @@ export const register = async (req, res) => {
     res.json({
       id: userSaved._id,
       email: userSaved.email,
-      nombre: userSaved.nombre, // Incluir nombre
-      apellido: userSaved.apellido, // Incluir apellido
-      perfil: userSaved.perfil, // Incluir perfil
-      vista_de_obra: userSaved.vista_de_obra, // Incluir vista de obra
+      nombre: userSaved.nombre,
+      apellido: userSaved.apellido,
+      perfil: userSaved.perfil,
+      vista_de_obra: userSaved.vista_de_obra,
       token: token,
     });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error("Error en el registro:", error);
+    res.status(500).json({ message: "Error al registrar usuario" });
   }
 };
 
