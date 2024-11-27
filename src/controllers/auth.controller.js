@@ -269,7 +269,12 @@ export const editUser = async (req, res) => {
 
 export const getAllUsers = async (req, res) => {
   try {
-    const users = await User.find(); // Encuentra todos los usuarios
+    const users = await User.find().populate({
+      path: "vista_de_obra",
+      select: "Nombre",
+    });
+
+    // Encuentra todos los usuarios
 
     // Si no hay usuarios, devuelve un mensaje
     if (!users || users.length === 0) {
