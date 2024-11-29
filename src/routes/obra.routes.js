@@ -18,7 +18,7 @@ router.get(
 );
 
 // Ruta para obtener una obra por ID (protegida, accesible para todos los perfiles autenticados)
-router.get("/obras/:id", auth, getObraById);
+router.get("/obras/:id", getObraById);
 
 // Ruta para crear una nueva obra (protegida, solo para Director y Coordinación)
 router.post("/nueva", auth, new_proyect);
