@@ -1,6 +1,6 @@
 import Obra from "../models/db.model.js";
 import { crearProyecto } from "../libs/new_proyect_funtion.js";
-
+import mongoose from "mongoose";
 export const new_proyect = async (req, res) => {
   try {
     const {
@@ -44,10 +44,57 @@ export const new_proyect = async (req, res) => {
 // Obtener todas las obras
 export const getAllObras = async (req, res) => {
   try {
-    const obras = await Obra.find();
-    res.status(200).json(obras);
+    const user = req.user; // Extrae el usuario autenticado del middleware
+
+    if (!user) {
+      return res.status(401).json({ message: "Usuario no autenticado" });
+    }
+
+    let obras = [];
+
+    // Si el perfil es Director o Coordinador, retorna todas las obras
+    if (user.perfil === "Director" || user.perfil === "Coordinador") {
+      obras = await Obra.find({});
+      return res.json(obras);
+    }
+
+    // Si el perfil es Obra o Control, filtra las obras asignadas
+    if (user.perfil === "Obra" || user.perfil === "Control") {
+      // Validar si `vista_de_obra` es un arreglo válido
+      if (
+        !user.vista_de_obra ||
+        !Array.isArray(user.vista_de_obra) ||
+        user.vista_de_obra.length === 0
+      ) {
+        return res.status(403).json({ message: "No tienes obras asignadas" });
+      }
+
+      try {
+        // Convertimos los IDs a ObjectId si es necesario
+        const obrasAsignadas = user.vista_de_obra.map(
+          (id) => new mongoose.Types.ObjectId(id)
+        );
+
+        // Buscar las obras asignadas al usuario
+        obras = await Obra.find({ _id: { $in: obrasAsignadas } });
+      } catch (conversionError) {
+        console.error(
+          "Error al convertir los IDs de las obras:",
+          conversionError
+        );
+        return res.status(400).json({ message: "IDs de obras no válidos" });
+      }
+
+      return res.json(obras);
+    }
+
+    // Para perfiles no autorizados
+    return res
+      .status(403)
+      .json({ message: "No tienes permiso para acceder a esta información" });
   } catch (error) {
-    res.status(500).json({ message: "Error al obtener las obras", error });
+    console.error("Error al obtener obras:", error);
+    return res.status(500).json({ message: "Error al obtener obras" });
   }
 };
 
@@ -65,6 +112,7 @@ export const getObraById = async (req, res) => {
     res.status(500).json({ message: "Error al obtener la obra", error });
   }
 };
+
 
 //Delete partida
 export const deletePartida = async (req, res) => {
@@ -292,5 +340,30 @@ export const updatePartidaFecha = async (req, res) => {
       message: "Error al actualizar la fecha",
       error: error.message,
     });
+
+export const getObrasByUser = async (req, res) => {
+  try {
+    const { id } = req.user; // El ID del usuario actual
+    const user = await User.findById(id).populate("vista_de_obra");
+
+    if (!user) {
+      return res.status(404).json({ message: "Usuario no encontrado" });
+    }
+
+    let obras;
+
+    // Si el perfil es "Director" o "Coordinación", devuelve todas las obras
+    if (["Director", "Coordinación"].includes(user.perfil)) {
+      obras = await Obra.find();
+    } else {
+      // Para otros roles, devuelve solo las obras asignadas
+      obras = user.vista_de_obra;
+    }
+
+    return res.json(obras);
+  } catch (error) {
+    console.error("Error al obtener las obras:", error);
+    return res.status(500).json({ message: "Error al obtener las obras" });
+
   }
 };

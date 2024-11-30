@@ -2,7 +2,9 @@ import User from "../models/user.model.js";
 import jwt from "jsonwebtoken";
 import { TOKEN_SECRET } from "../config.js";
 import { createAccessToken } from "../libs/jwt.js";
+import Obra from "../models/db.model.js";
 import bcrypt from "bcryptjs";
+import mongoose from "mongoose";
 
 export const register = async (req, res) => {
   try {
@@ -18,14 +20,48 @@ export const register = async (req, res) => {
     // Encriptar la contraseña
     const passwordHash = await bcrypt.hash(password, 10);
 
+    // Procesar y validar vista_de_obra
+    let obrasAsignadas = [];
+    if (perfil !== "Director" && perfil !== "Coordinador") {
+      if (typeof vista_de_obra === "string") {
+        // Convertir cadena separada por comas a arreglo
+        obrasAsignadas = vista_de_obra
+          .split(",")
+          .map((obraId) => obraId.trim());
+      } else if (Array.isArray(vista_de_obra)) {
+        obrasAsignadas = vista_de_obra;
+      } else {
+        return res.status(400).json({
+          message:
+            "El campo vista_de_obra debe ser un arreglo o cadena de IDs válidos",
+        });
+      }
+
+      // Validar que todos los IDs son válidos ObjectIds
+      if (!obrasAsignadas.every((id) => mongoose.Types.ObjectId.isValid(id))) {
+        return res
+          .status(400)
+          .json({ message: "Uno o más IDs de obras no son válidos" });
+      }
+
+      // Verificar que las obras existen en la base de datos
+      const obras = await Obra.find({ _id: { $in: obrasAsignadas } });
+      if (obras.length !== obrasAsignadas.length) {
+        return res.status(400).json({
+          message:
+            "Algunas de las obras seleccionadas no existen en la base de datos",
+        });
+      }
+    }
+
     // Crear un nuevo usuario con los campos adicionales
     const newUser = new User({
       email,
       password: passwordHash,
-      nombre, // Añadir campo nombre
-      apellido, // Añadir campo apellido
-      perfil, // Añadir campo perfil
-      vista_de_obra, // Añadir campo vista de obra
+      nombre,
+      apellido,
+      perfil,
+      vista_de_obra: obrasAsignadas,
     });
 
     // Guardar el usuario
@@ -38,14 +74,15 @@ export const register = async (req, res) => {
     res.json({
       id: userSaved._id,
       email: userSaved.email,
-      nombre: userSaved.nombre, // Incluir nombre
-      apellido: userSaved.apellido, // Incluir apellido
-      perfil: userSaved.perfil, // Incluir perfil
-      vista_de_obra: userSaved.vista_de_obra, // Incluir vista de obra
+      nombre: userSaved.nombre,
+      apellido: userSaved.apellido,
+      perfil: userSaved.perfil,
+      vista_de_obra: userSaved.vista_de_obra,
       token: token,
     });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error("Error en el registro:", error);
+    res.status(500).json({ message: "Error al registrar usuario" });
   }
 };
 
@@ -139,7 +176,7 @@ export const getUserProfile = async (req, res) => {
           email: userFound.email,
           nombre: userFound.nombre,
           apellido: userFound.apellido,
-          puesto: userFound.puesto,
+          perfil: userFound.perfil,
           vista_de_obra: userFound.vista_de_obra,
           isAdmin: userFound.isAdmin,
         });
@@ -154,47 +191,90 @@ export const getUserProfile = async (req, res) => {
 
 export const editUser = async (req, res) => {
   try {
-    const { nombre, apellido, perfil, vista_de_obra } = req.body; // Solo los campos del esquema
-    const { id } = req.params; // ID del usuario a editar
+    const { nombre, apellido, perfil, vista_de_obra } = req.body;
+    const { id } = req.params;
 
-    try {
-      const updatedUser = await User.findByIdAndUpdate(
-        id,
-        {
-          nombre,
-          apellido,
-          perfil,
-          vista_de_obra,
-          updatedAt: new Date(),
-        },
-        { new: true }
-      );
+    // Validar si el usuario existe
+    const user = await User.findById(id);
+    if (!user) {
+      return res.status(404).json({ message: "Usuario no encontrado" });
+    }
 
-      if (!updatedUser) {
-        return res.status(404).json({ message: "User not found" });
+    // Convertir y validar vista_de_obra
+    let obrasAsignadas = [];
+    if (perfil !== "Director" && perfil !== "Coordinador") {
+      if (typeof vista_de_obra === "string") {
+        // Convertir cadena separada por comas a arreglo
+        obrasAsignadas = vista_de_obra
+          .split(",")
+          .map((obraId) => obraId.trim());
+      } else if (Array.isArray(vista_de_obra)) {
+        obrasAsignadas = vista_de_obra;
+      } else {
+        return res.status(400).json({
+          message:
+            "El campo vista_de_obra debe ser un arreglo o cadena de IDs válidos",
+        });
       }
 
-      return res.json({
-        id: updatedUser._id,
-        username: updatedUser.username,
-        email: updatedUser.email,
-        nombre: updatedUser.nombre,
-        apellido: updatedUser.apellido,
-        perfil: updatedUser.perfil,
-        vista_de_obra: updatedUser.vista_de_obra,
-        isAdmin: updatedUser.isAdmin,
-      });
-    } catch (error) {
-      return res.status(500).json({ message: error.message });
+      // Validar que todos los IDs son válidos ObjectIds
+      if (!obrasAsignadas.every((id) => mongoose.Types.ObjectId.isValid(id))) {
+        return res
+          .status(400)
+          .json({ message: "Uno o más IDs de obras no son válidos" });
+      }
     }
+
+    // Agregar log para depuración
+    console.log("Obras asignadas procesadas:", obrasAsignadas);
+
+    // Verificar que las obras existen en la base de datos
+    const obras = await Obra.find({ _id: { $in: obrasAsignadas } });
+    if (obras.length !== obrasAsignadas.length) {
+      return res.status(400).json({
+        message:
+          "Algunas de las obras seleccionadas no existen en la base de datos",
+      });
+    }
+
+    // Actualizar el usuario
+    const updatedUser = await User.findByIdAndUpdate(
+      id,
+      {
+        nombre,
+        apellido,
+        perfil,
+        vista_de_obra: obrasAsignadas,
+        updatedAt: new Date(),
+      },
+      { new: true } // Retorna el documento actualizado
+    );
+
+    return res.json(updatedUser);
   } catch (error) {
-    return res.status(500).json({ message: error.message });
+    console.error("Error al editar usuario:", error);
+
+    // Manejar errores específicos
+    if (error.message.startsWith("Obra inválida")) {
+      return res.status(400).json({ message: error.message });
+    } else if (
+      error.message.startsWith("Algunas de las obras seleccionadas no existen")
+    ) {
+      return res.status(400).json({ message: error.message });
+    }
+
+    return res.status(500).json({ message: "Error al editar usuario" });
   }
 };
 
 export const getAllUsers = async (req, res) => {
   try {
-    const users = await User.find(); // Encuentra todos los usuarios
+    const users = await User.find().populate({
+      path: "vista_de_obra",
+      select: "Nombre",
+    });
+
+    // Encuentra todos los usuarios
 
     // Si no hay usuarios, devuelve un mensaje
     if (!users || users.length === 0) {
