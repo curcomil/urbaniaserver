@@ -113,6 +113,235 @@ export const getObraById = async (req, res) => {
   }
 };
 
+//Delete partida
+export const deletePartida = async (req, res) => {
+  try {
+    const { id, obra, index } = req.body;
+
+    // Buscar la obra
+    const obra_delete = await Obra.findById(obra);
+    if (!obra_delete) {
+      return res.status(404).json({ message: "Obra no encontrada" });
+    }
+
+    // Validar el índice de la etapa
+    if (!obra_delete.Etapas[index]) {
+      return res.status(400).json({ message: "Índice de etapa inválido" });
+    }
+
+    // Eliminar la partida usando pull
+    const result = await Obra.findOneAndUpdate(
+      { _id: obra, "Etapas.Partidas._id": id },
+      {
+        $pull: {
+          [`Etapas.${index}.Partidas`]: { _id: id },
+        },
+      },
+      { new: true }
+    );
+
+    if (!result) {
+      return res.status(404).json({ message: "Partida no encontrada" });
+    }
+
+    console.log("Partida eliminada correctamente");
+    return res.status(200).json({
+      message: "Partida eliminada correctamente",
+      obra: result,
+    });
+  } catch (error) {
+    console.error("Error eliminando la partida:", error);
+    return res.status(500).json({ message: "Error interno del servidor" });
+  }
+};
+
+//Delete subpartida
+export const deleteSubpartida = async (req, res) => {
+  try {
+    const { subpartida, partida, obra, index } = req.body;
+
+    // Buscar la obra por ID
+    const obra_find = await Obra.findById(obra);
+    if (!obra_find) {
+      return res.status(404).json({ message: "Obra no encontrada" });
+    }
+
+    // Validar que el índice de la etapa sea válido
+    if (!obra_find.Etapas[index]) {
+      return res.status(400).json({ message: "Índice de etapa inválido" });
+    }
+
+    // Obtener la etapa correspondiente
+    const etapa = obra_find.Etapas[index];
+
+    // Buscar la partida por id dentro de la etapa
+    const partida_find = etapa.Partidas.find((p) => p.Nombre === partida);
+    if (!partida_find) {
+      return res
+        .status(404)
+        .json({ message: "Partida no encontrada en la etapa especificada" });
+    }
+
+    // Buscar y eliminar la subpartida por nombre dentro de la partida
+    const subpartida_index = partida_find.Subpartidas.findIndex(
+      (s) => s.Nombre === subpartida
+    );
+    if (subpartida_index === -1) {
+      return res.status(404).json({
+        message: "Subpartida no encontrada en la partida especificada",
+      });
+    }
+
+    // Eliminar la subpartida del array
+    partida_find.Subpartidas.splice(subpartida_index, 1);
+
+    // Guardar los cambios en la base de datos
+    await obra_find.save();
+
+    // Respuesta exitosa
+    res.status(200).json({ message: "Subpartida eliminada con éxito" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error al eliminar la subpartida", error });
+  }
+};
+
+export const updateSubpartidaFecha = async (req, res) => {
+  try {
+    const { subpartida, partida, obra, index, fecha, tipo } = req.body;
+
+    console.log("La fecha que llegó es:", fecha);
+
+    // Validar que el tipo sea "Inicio" o "Fin"
+    if (!["Inicio", "Fin"].includes(tipo)) {
+      return res.status(400).json({
+        message: "El tipo debe ser 'Inicio' o 'Fin'",
+      });
+    }
+
+    // Buscar la obra por ID
+    const obra_find = await Obra.findById(obra);
+    if (!obra_find) {
+      return res.status(404).json({ message: "Obra no encontrada" });
+    }
+
+    // Validar que el índice de la etapa sea válido
+    if (!obra_find.Etapas[index]) {
+      return res.status(400).json({ message: "Índice de etapa inválido" });
+    }
+
+    // Obtener la etapa correspondiente
+    const etapa = obra_find.Etapas[index];
+
+    // Buscar la partida por id dentro de la etapa
+    const partida_find = etapa.Partidas.find((p) => p.Nombre === partida);
+    if (!partida_find) {
+      return res.status(404).json({
+        message: "Partida no encontrada en la etapa especificada",
+      });
+    }
+
+    // Buscar la subpartida por nombre dentro de la partida
+    const subpartida_find = partida_find.Subpartidas.find(
+      (s) => s.Nombre === subpartida
+    );
+    if (!subpartida_find) {
+      return res.status(404).json({
+        message: "Subpartida no encontrada en la partida especificada",
+      });
+    }
+
+    // Asegurar que exista el campo Fechas.Plan
+    if (!subpartida_find.Fechas) {
+      subpartida_find.Fechas = {};
+    }
+    if (!subpartida_find.Fechas.Plan) {
+      subpartida_find.Fechas.Plan = {};
+    }
+
+    // Actualizar solo el campo específico sin borrar el otro
+    subpartida_find.Fechas.Plan[tipo] = fecha;
+
+    // Guardar los cambios en la base de datos
+    await obra_find.save();
+
+    // Respuesta exitosa
+    res.status(200).json({
+      message: `Fecha '${tipo}' actualizada con éxito`,
+      subpartida: subpartida_find,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      message: "Error al actualizar la fecha",
+      error: error.message,
+    });
+  }
+};
+
+export const updatePartidaFecha = async (req, res) => {
+  try {
+    const { partida, obra, index, fecha, tipo } = req.body;
+
+    console.log("La fecha que llegó es:", fecha);
+
+    // Validar que el tipo sea "Inicio" o "Fin"
+    if (!["Inicio", "Fin"].includes(tipo)) {
+      return res.status(400).json({
+        message: "El tipo debe ser 'Inicio' o 'Fin'",
+      });
+    }
+
+    // Buscar la obra por ID
+    const obra_find = await Obra.findById(obra);
+    if (!obra_find) {
+      return res.status(404).json({ message: "Obra no encontrada" });
+    }
+
+    // Validar que el índice de la etapa sea válido
+    if (!obra_find.Etapas[index]) {
+      return res.status(400).json({ message: "Índice de etapa inválido" });
+    }
+
+    // Obtener la etapa correspondiente
+    const etapa = obra_find.Etapas[index];
+
+    // Buscar la partida por nombre dentro de la etapa
+    const partida_find = etapa.Partidas.find((p) => p.Nombre === partida);
+    if (!partida_find) {
+      return res.status(404).json({
+        message: "Partida no encontrada en la etapa especificada",
+      });
+    }
+
+    // Asegurar que exista el campo Fechas.Plan
+    if (!partida_find.Fechas) {
+      partida_find.Fechas = {};
+    }
+    if (!partida_find.Fechas.Plan) {
+      partida_find.Fechas.Plan = {};
+    }
+
+    // Actualizar solo el campo específico sin borrar el otro
+    partida_find.Fechas.Plan[tipo] = fecha;
+
+    // Guardar los cambios en la base de datos
+    await obra_find.save();
+
+    // Respuesta exitosa
+    res.status(200).json({
+      message: `Fecha '${tipo}' actualizada con éxito`,
+      partida: partida_find,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      message: "Error al actualizar la fecha",
+      error: error.message,
+    });
+  }
+};
+
 export const getObrasByUser = async (req, res) => {
   try {
     const { id } = req.user; // El ID del usuario actual

@@ -43,7 +43,7 @@ export const crearProyecto = (
         : [],
       Fechas: {
         Plan: { Inicio: obtenerFechaActual(), Fin: obtenerFechaActual() },
-        Ejecución: { Inicio: obtenerFechaActual(), Fin: obtenerFechaActual() },
+        Ejecucion: { Inicio: obtenerFechaActual(), Fin: obtenerFechaActual() },
       },
     }));
 
@@ -54,7 +54,7 @@ export const crearProyecto = (
           Nombre: `${partida.Nombre} ${i + 1}`,
           Fechas: {
             Plan: { Inicio: obtenerFechaActual(), Fin: obtenerFechaActual() },
-            Ejecución: {
+            Ejecucion: {
               Inicio: obtenerFechaActual(),
               Fin: obtenerFechaActual(),
             },
@@ -69,7 +69,7 @@ export const crearProyecto = (
                           Inicio: obtenerFechaActual(),
                           Fin: obtenerFechaActual(),
                         },
-                        Ejecución: {
+                        Ejecucion: {
                           Inicio: obtenerFechaActual(),
                           Fin: obtenerFechaActual(),
                         },
@@ -108,7 +108,7 @@ export const crearProyecto = (
                         Inicio: obtenerFechaActual(),
                         Fin: obtenerFechaActual(),
                       },
-                      Ejecución: {
+                      Ejecucion: {
                         Inicio: obtenerFechaActual(),
                         Fin: obtenerFechaActual(),
                       },
@@ -126,7 +126,7 @@ export const crearProyecto = (
                       Inicio: obtenerFechaActual(),
                       Fin: obtenerFechaActual(),
                     },
-                    Ejecución: {
+                    Ejecucion: {
                       Inicio: obtenerFechaActual(),
                       Fin: obtenerFechaActual(),
                     },
@@ -137,7 +137,7 @@ export const crearProyecto = (
           ],
           Fechas: {
             Plan: { Inicio: obtenerFechaActual(), Fin: obtenerFechaActual() },
-            Ejecución: {
+            Ejecucion: {
               Inicio: obtenerFechaActual(),
               Fin: obtenerFechaActual(),
             },

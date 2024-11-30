@@ -3,6 +3,10 @@ import {
   getAllObras,
   getObraById,
   new_proyect,
+  deletePartida,
+  deleteSubpartida,
+  updateSubpartidaFecha,
+  updatePartidaFecha,
   getObrasByUser,
   getMayoresRetrasos,
 } from "../controllers/obra.controller.js";
@@ -27,6 +31,20 @@ router.post("/nueva", auth, new_proyect);
 // Ruta para obtener las obras asignadas al usuario (protegida)
 router.get("/mis-obras", auth, getObrasByUser);
 
+
 router.get("/obras/:obraId/mayores-retrasos", getMayoresRetrasos);
+
+//Ruta para eliminar una partida
+router.delete("/deletePartida", deletePartida);
+
+//Ruta para eliminar una subpartida
+router.delete("/deleteSubpartida", deleteSubpartida);
+
+//Ruta para fechas de una subpartida
+router.post("/fechaSubpartida", updateSubpartidaFecha);
+
+//Ruta para fechas de una partida
+router.post("/fechaPartida", updatePartidaFecha);
+
 
 export default router;
