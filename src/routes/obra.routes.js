@@ -4,6 +4,7 @@ import {
   getObraById,
   new_proyect,
   getObrasByUser,
+  getMayoresRetrasos,
 } from "../controllers/obra.controller.js";
 import { auth, verifyRole } from "../middlewares/auth.middleware.js";
 
@@ -25,5 +26,7 @@ router.post("/nueva", auth, new_proyect);
 
 // Ruta para obtener las obras asignadas al usuario (protegida)
 router.get("/mis-obras", auth, getObrasByUser);
+
+router.get("/obras/:obraId/mayores-retrasos", getMayoresRetrasos);
 
 export default router;
