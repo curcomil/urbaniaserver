@@ -113,7 +113,6 @@ export const getObraById = async (req, res) => {
   }
 };
 
-
 //Delete partida
 export const deletePartida = async (req, res) => {
   try {
@@ -340,6 +339,8 @@ export const updatePartidaFecha = async (req, res) => {
       message: "Error al actualizar la fecha",
       error: error.message,
     });
+  }
+};
 
 export const getObrasByUser = async (req, res) => {
   try {
@@ -364,6 +365,5 @@ export const getObrasByUser = async (req, res) => {
   } catch (error) {
     console.error("Error al obtener las obras:", error);
     return res.status(500).json({ message: "Error al obtener las obras" });
-
   }
 };
