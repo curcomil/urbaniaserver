@@ -367,3 +367,60 @@ export const getObrasByUser = async (req, res) => {
     return res.status(500).json({ message: "Error al obtener las obras" });
   }
 };
+
+export const getMayoresRetrasos = async (req, res) => {
+  const { obraId } = req.params;
+
+  try {
+    const obra = await Obra.findById(obraId);
+    if (!obra) {
+      return res.status(404).json({ message: "Obra no encontrada" });
+    }
+
+    const extractPartidasInfo = (obra) => {
+      const partidas = [];
+
+      obra.Etapas.forEach((etapa) => {
+        etapa.Partidas.forEach((partida) => {
+          const fechaPlanFin = partida.Fechas?.Plan?.Fin
+            ? new Date(partida.Fechas.Plan.Fin)
+            : null;
+          const fechaEjecucionFin = partida.Fechas?.Ejecucion?.Fin
+            ? new Date(partida.Fechas.Ejecucion.Fin)
+            : null;
+
+          let diferenciaDias = null;
+          if (fechaPlanFin && fechaEjecucionFin) {
+            diferenciaDias =
+              (fechaEjecucionFin - fechaPlanFin) / (1000 * 60 * 60 * 24); // Diferencia en días
+          }
+
+          partidas.push({
+            Nombre: partida.Nombre || "Sin nombre",
+            Etapa: etapa.Nombre || "Sin etapa",
+            Fechas: {
+              Plan: partida.Fechas?.Plan || { Inicio: null, Fin: null },
+              Ejecucion: partida.Fechas?.Ejecucion || {
+                Inicio: null,
+                Fin: null,
+              },
+            },
+            DiferenciaDias: diferenciaDias,
+          });
+        });
+      });
+
+      // Filtrar solo partidas con diferencia calculada y ordenar por mayor retraso
+      return partidas
+        .filter((p) => p.DiferenciaDias !== null)
+        .sort((a, b) => b.DiferenciaDias - a.DiferenciaDias)
+        .slice(0, 3);
+    };
+
+    const mayoresRetrasos = extractPartidasInfo(obra);
+    res.json(mayoresRetrasos);
+  } catch (error) {
+    console.error("Error al calcular los mayores retrasos:", error);
+    res.status(500).json({ message: "Error interno del servidor" });
+  }
+};
