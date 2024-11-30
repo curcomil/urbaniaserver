@@ -1,5 +1,20 @@
 import mongoose from "mongoose";
 
+const SubpartidaSchema = new mongoose.Schema({
+  Nombre: { type: String },
+  Etapa: { type: Number },
+  Fechas: {
+    Plan: {
+      Inicio: { type: Date },
+      Fin: { type: Date },
+    },
+    Ejecucion: {
+      Inicio: { type: Date },
+      Fin: { type: Date },
+    },
+  },
+});
+
 const dbSchema = new mongoose.Schema({
   Nombre: { type: String, required: true },
   Datos: {
@@ -25,7 +40,10 @@ const dbSchema = new mongoose.Schema({
       Partidas: [
         {
           Nombre: { type: String },
-          Subpartidas: { type: Array, default: [] },
+          Subpartidas: {
+            type: [SubpartidaSchema],
+            default: [],
+          },
           Fechas: {
             Plan: {
               Inicio: { type: Date },
@@ -44,7 +62,10 @@ const dbSchema = new mongoose.Schema({
           Partidas: [
             {
               Nombre: { type: String },
-              Subpartidas: { type: Array, default: [] },
+              Subpartidas: {
+                type: [SubpartidaSchema],
+                default: [],
+              },
               Fechas: {
                 Plan: {
                   Inicio: { type: Date },
