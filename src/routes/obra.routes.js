@@ -26,11 +26,10 @@ router.get(
 router.get("/obras/:id", getObraById);
 
 // Ruta para crear una nueva obra (protegida, solo para Director y Coordinación)
-router.post("/nueva", auth, new_proyect);
+router.post("/nueva", new_proyect);
 
 // Ruta para obtener las obras asignadas al usuario (protegida)
-router.get("/mis-obras", auth, getObrasByUser);
-
+router.get("/mis-obras", getObrasByUser);
 
 router.get("/obras/:obraId/mayores-retrasos", getMayoresRetrasos);
 
@@ -45,6 +44,5 @@ router.post("/fechaSubpartida", updateSubpartidaFecha);
 
 //Ruta para fechas de una partida
 router.post("/fechaPartida", updatePartidaFecha);
-
 
 export default router;
