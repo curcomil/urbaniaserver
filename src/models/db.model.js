@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { string } from "zod";
 
 const SubpartidaSchema = new mongoose.Schema({
   Nombre: { type: String },
@@ -44,6 +45,12 @@ const dbSchema = new mongoose.Schema({
               Fin: { type: Date },
             },
           },
+          Estado: { type: String },
+          EstadoActual: {
+            type: String,
+            enum: ["completa", "actual", "pendiente"],
+            default: "pendiente",
+          },
         },
       ],
       Fechas: {
@@ -87,6 +94,11 @@ const dbSchema = new mongoose.Schema({
               Inicio: { type: Date },
               Fin: { type: Date },
             },
+          },
+          EstadoActual: {
+            type: String,
+            enum: ["completa", "actual", "pendiente"],
+            default: "pendiente",
           },
         },
       ],
