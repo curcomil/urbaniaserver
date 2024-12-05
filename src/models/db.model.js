@@ -25,19 +25,9 @@ const dbSchema = new mongoose.Schema({
   },
   Sotanos: { type: Number, required: true },
   Niveles: { type: Number, required: true },
-  Edificios: { type: Number, required: true },
-  Fechas: {
-    Plan: {
-      Inicio: { type: Date, required: true },
-      Fin: { type: Date, required: true },
-    },
-    Ejecucion: {
-      Inicio: { type: Date },
-      Fin: { type: Date },
-    },
-  },
-  Etapas: [
+  Edificios: [
     {
+      Nombre: { type: String },
       Partidas: [
         {
           Nombre: { type: String },
@@ -63,28 +53,38 @@ const dbSchema = new mongoose.Schema({
           },
         },
       ],
-      Edificios: [
+      Fechas: {
+        Plan: {
+          Inicio: { type: Date },
+          Fin: { type: Date },
+        },
+        Ejecucion: {
+          Inicio: { type: Date },
+          Fin: { type: Date },
+        },
+      },
+      Etapa: { type: Number, default: 0 },
+    },
+  ],
+  Fechas: {
+    Plan: {
+      Inicio: { type: Date, required: true },
+      Fin: { type: Date, required: true },
+    },
+    Ejecucion: {
+      Inicio: { type: Date },
+      Fin: { type: Date },
+    },
+  },
+  Etapas: [
+    {
+      Partidas: [
         {
           Nombre: { type: String },
-          Partidas: [
-            {
-              Nombre: { type: String },
-              Subpartidas: {
-                type: [SubpartidaSchema],
-                default: [],
-              },
-              Fechas: {
-                Plan: {
-                  Inicio: { type: Date },
-                  Fin: { type: Date },
-                },
-                Ejecucion: {
-                  Inicio: { type: Date },
-                  Fin: { type: Date },
-                },
-              },
-            },
-          ],
+          Subpartidas: {
+            type: [SubpartidaSchema],
+            default: [],
+          },
           Fechas: {
             Plan: {
               Inicio: { type: Date },

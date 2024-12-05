@@ -208,9 +208,8 @@ export const deleteSubpartida = async (req, res) => {
 
 export const updateSubpartidaFecha = async (req, res) => {
   try {
-    const { subpartida, partida, obra, index, fecha, tipo } = req.body;
-
-    console.log("La fecha que llegó es:", fecha);
+    const { subpartida, partida, obra, index, fecha, tipo, indexEdificio } =
+      req.body.data;
 
     // Validar que el tipo sea "Inicio" o "Fin"
     if (!["Inicio", "Fin"].includes(tipo)) {
@@ -233,8 +232,13 @@ export const updateSubpartidaFecha = async (req, res) => {
     // Obtener la etapa correspondiente
     const etapa = obra_find.Etapas[index];
 
-    // Buscar la partida por id dentro de la etapa
-    const partida_find = etapa.Partidas.find((p) => p.Nombre === partida);
+    // Buscar la partida por nombre dentro de la etapa
+    const ruta =
+      indexEdificio !== undefined
+        ? obra_find.Edificios[indexEdificio]?.Partidas
+        : etapa.Partidas;
+    console.log(indexEdificio);
+    const partida_find = ruta.find((p) => p.Nombre === partida);
     if (!partida_find) {
       return res.status(404).json({
         message: "Partida no encontrada en la etapa especificada",
@@ -281,9 +285,7 @@ export const updateSubpartidaFecha = async (req, res) => {
 
 export const updatePartidaFecha = async (req, res) => {
   try {
-    const { partida, obra, index, fecha, tipo } = req.body;
-
-    console.log("La fecha que llegó es:", fecha);
+    const { partida, obra, index, fecha, tipo, indexEdificio } = req.body.data;
 
     // Validar que el tipo sea "Inicio" o "Fin"
     if (!["Inicio", "Fin"].includes(tipo)) {
@@ -307,19 +309,15 @@ export const updatePartidaFecha = async (req, res) => {
     const etapa = obra_find.Etapas[index];
 
     // Buscar la partida por nombre dentro de la etapa
-    const partida_find = etapa.Partidas.find((p) => p.Nombre === partida);
+    const ruta =
+      indexEdificio !== undefined
+        ? obra_find.Edificios[indexEdificio]?.Partidas
+        : etapa.Partidas;
+    const partida_find = ruta.find((p) => p.Nombre === partida);
     if (!partida_find) {
       return res.status(404).json({
         message: "Partida no encontrada en la etapa especificada",
       });
-    }
-
-    // Asegurar que exista el campo Fechas.Plan
-    if (!partida_find.Fechas) {
-      partida_find.Fechas = {};
-    }
-    if (!partida_find.Fechas.Plan) {
-      partida_find.Fechas.Plan = {};
     }
 
     // Actualizar solo el campo específico sin borrar el otro
@@ -479,5 +477,145 @@ export const getMayoresRetrasos = async (req, res) => {
   } catch (error) {
     console.error("Error al calcular los mayores retrasos:", error);
     res.status(500).json({ message: "Error interno del servidor" });
+  }
+};
+
+export const deletePartidaEdificio = async (req, res) => {
+  try {
+    const { id, obra, indexEdificio } = req.body;
+    console.log(req.body);
+
+    // Buscar la obra
+    const obra_delete = await Obra.findById(obra);
+    if (!obra_delete) {
+      return res.status(404).json({ message: "Obra no encontrada" });
+    }
+
+    // Validar el índice del edificio
+    const edificio = obra_delete.Edificios[indexEdificio];
+    if (!edificio) {
+      return res.status(400).json({ message: "Índice de edificio inválido" });
+    }
+
+    // Validar la partida dentro del edificio
+    const partida = edificio.Partidas.find((p) => p._id.toString() === id);
+    if (!partida) {
+      return res.status(404).json({ message: "Partida no encontrada" });
+    }
+
+    // Eliminar la partida usando pull
+    const result = await Obra.findOneAndUpdate(
+      {
+        _id: obra,
+        [`Edificios.${indexEdificio}.Partidas._id`]: id,
+      },
+      {
+        $pull: {
+          [`Edificios.${indexEdificio}.Partidas`]: { _id: id },
+        },
+      },
+      { new: true }
+    );
+
+    console.log("Partida eliminada correctamente");
+    return res.status(200).json({
+      message: "Partida eliminada correctamente",
+      obra: result,
+    });
+  } catch (error) {
+    console.error("Error eliminando la partida:", error);
+    return res.status(500).json({ message: "Error interno del servidor" });
+  }
+};
+
+export const deleteSubpartidaEdificio = async (req, res) => {
+  try {
+    const { subpartida, partida, obra, indexEdificio } = req.body;
+
+    // Buscar la obra por ID
+    const obra_find = await Obra.findById(obra);
+    if (!obra_find) {
+      return res.status(404).json({ message: "Obra no encontrada" });
+    }
+
+    // Buscar la partida por nombre dentro de la etapa
+
+    const partida_find = obra_find.Edificios[indexEdificio].Partidas.find(
+      (p) => p.Nombre === partida
+    );
+    if (!partida_find) {
+      return res
+        .status(404)
+        .json({ message: "Partida no encontrada en la etapa especificada" });
+    }
+
+    // Buscar y eliminar la subpartida por nombre dentro de la partida
+    const subpartida_index = partida_find.Subpartidas.findIndex(
+      (s) => s.Nombre === subpartida
+    );
+    if (subpartida_index === -1) {
+      return res.status(404).json({
+        message: "Subpartida no encontrada en la partida especificada",
+      });
+    }
+
+    // Eliminar la subpartida del array
+    partida_find.Subpartidas.splice(subpartida_index, 1);
+
+    // Guardar los cambios en la base de datos
+    await obra_find.save();
+
+    // Respuesta exitosa
+    res.status(200).json({ message: "Subpartida eliminada con éxito" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error al eliminar la subpartida", error });
+  }
+};
+
+export const updateEdificioFecha = async (req, res) => {
+  try {
+    const { obra, fecha, tipo, edificio } = req.body;
+
+    // Validar que el tipo sea "Inicio" o "Fin"
+    if (!["Inicio", "Fin"].includes(tipo)) {
+      return res.status(400).json({
+        message: "El tipo debe ser 'Inicio' o 'Fin'",
+      });
+    }
+
+    // Buscar la obra por ID
+    const obra_find = await Obra.findById(obra);
+    if (!obra_find) {
+      return res.status(404).json({ message: "Obra no encontrada" });
+    }
+
+    // Buscar la partida por nombre dentro de la etapa
+    const edificio_find = obra_find.Edificios.find(
+      (p) => p.Nombre === edificio
+    );
+    if (!edificio_find) {
+      return res.status(404).json({
+        message: "Edificio no encontrado en la etapa especificada",
+      });
+    }
+
+    // Actualizar solo el campo específico sin borrar el otro
+    edificio_find.Fechas.Plan[tipo] = fecha;
+
+    // Guardar los cambios en la base de datos
+    await obra_find.save();
+
+    // Respuesta exitosa
+    res.status(200).json({
+      message: `Fecha '${tipo}' actualizada con éxito`,
+      edificio: edificio_find,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      message: "Error al actualizar la fecha",
+      error: error.message,
+    });
   }
 };
