@@ -144,6 +144,16 @@ export const crearProyecto = (
           },
         };
       }),
+      Fechas: {
+        Plan: {
+          Inicio: fecha_de_inicio,
+          Fin: fecha_de_fin,
+        },
+        Ejecucion: {
+          Inicio: obtenerFechaActual(),
+          Fin: obtenerFechaActual(),
+        },
+      },
     }));
   };
 
@@ -151,7 +161,6 @@ export const crearProyecto = (
     return Array.from({ length: numEtapas }, (_, etapaIdx) => ({
       Nombre: `Etapa ${etapaIdx + 1}`,
       Partidas: crearPartidasGenerales(),
-      Edificios: crearEdificios(nivelesPorEdificio),
     }));
   };
 
@@ -164,7 +173,7 @@ export const crearProyecto = (
     },
     Sotanos: sotanos,
     Niveles: nivelesPorEdificio,
-    Edificios: nivelesPorEdificio,
+    Edificios: crearEdificios(nivelesPorEdificio),
     Fechas: {
       Plan: {
         Inicio: fecha_de_inicio,
