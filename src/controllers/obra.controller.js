@@ -1,6 +1,7 @@
 import Obra from "../models/db.model.js";
 import { crearProyecto } from "../libs/new_proyect_funtion.js";
 import mongoose from "mongoose";
+
 export const new_proyect = async (req, res) => {
   try {
     const {
@@ -366,120 +367,6 @@ export const getObrasByUser = async (req, res) => {
   }
 };
 
-export const getMayoresRetrasos = async (req, res) => {
-  const { obraId } = req.params;
-
-  try {
-    // Obtener la obra por su ID
-    const obra = await Obra.findById(obraId);
-    if (!obra) {
-      return res.status(404).json({ message: "Obra no encontrada" });
-    }
-
-    const retrasos = [];
-
-    // Procesar etapas y partidas
-    obra.Etapas.forEach((etapa, index) => {
-      // Identificar la etapa con su número
-      const nombreEtapa = `Etapa ${index + 1}`;
-      let sumaPlan = 0;
-      let sumaEjecucion = 0;
-
-      // Iterar sobre partidas
-      etapa.Partidas.forEach((partida) => {
-        const fechaPlanFin = partida.Fechas?.Plan?.Fin
-          ? new Date(partida.Fechas.Plan.Fin)
-          : null;
-        const fechaEjecucionFin = partida.Fechas?.Ejecucion?.Fin
-          ? new Date(partida.Fechas.Ejecucion.Fin)
-          : null;
-        const diferenciaDias =
-          fechaPlanFin && fechaEjecucionFin
-            ? (fechaEjecucionFin - fechaPlanFin) / (1000 * 60 * 60 * 24)
-            : 0;
-
-        // Agregar retraso de la partida
-        retrasos.push({
-          Tipo: "Partida",
-          Nombre: partida.Nombre || "Sin nombre",
-          Etapa: nombreEtapa,
-          Fechas: partida.Fechas,
-          DiferenciaDias: diferenciaDias,
-          ResumenEtapa: {
-            Etapa: nombreEtapa,
-            DiasPlan: sumaPlan,
-            DiasEjecucion: sumaEjecucion,
-          },
-        });
-
-        // Calcular días de planificación y ejecución
-        const inicioPlan = partida.Fechas?.Plan?.Inicio
-          ? new Date(partida.Fechas.Plan.Inicio)
-          : null;
-        const finPlan = fechaPlanFin;
-        if (inicioPlan && finPlan) {
-          sumaPlan += (finPlan - inicioPlan) / (1000 * 60 * 60 * 24);
-        }
-
-        const inicioEjecucion = partida.Fechas?.Ejecucion?.Inicio
-          ? new Date(partida.Fechas.Ejecucion.Inicio)
-          : null;
-        const finEjecucion = fechaEjecucionFin;
-        if (inicioEjecucion && finEjecucion) {
-          sumaEjecucion +=
-            (finEjecucion - inicioEjecucion) / (1000 * 60 * 60 * 24);
-        }
-      });
-
-      // Iterar sobre edificios dentro de la etapa
-      if (Array.isArray(etapa.Edificios)) {
-        etapa.Edificios.forEach((edificio) => {
-          const fechaPlanFin = edificio.Fechas?.Plan?.Fin
-            ? new Date(edificio.Fechas.Plan.Fin)
-            : null;
-          const fechaEjecucionFin = edificio.Fechas?.Ejecucion?.Fin
-            ? new Date(edificio.Fechas.Ejecucion.Fin)
-            : null;
-          const diferenciaDias =
-            fechaPlanFin && fechaEjecucionFin
-              ? (fechaEjecucionFin - fechaPlanFin) / (1000 * 60 * 60 * 24)
-              : 0;
-
-          // Agregar retraso del edificio
-          retrasos.push({
-            Tipo: "Edificio",
-            Nombre: edificio.Nombre || "Sin nombre",
-            Etapa: nombreEtapa,
-            Fechas: edificio.Fechas,
-            DiferenciaDias: diferenciaDias,
-            ResumenEtapa: {
-              Etapa: nombreEtapa,
-              DiasPlan: sumaPlan,
-              DiasEjecucion: sumaEjecucion,
-            },
-          });
-        });
-      } else {
-        console.warn(
-          `La etapa ${nombreEtapa} no tiene edificios o no es un arreglo.`
-        );
-      }
-    });
-
-    // Consolidar mayores retrasos
-    const mayoresRetrasos = retrasos
-      .filter((item) => item.DiferenciaDias !== null)
-      .sort((a, b) => b.DiferenciaDias - a.DiferenciaDias)
-      .slice(0, 3);
-
-    // Responder con los resultados
-    res.json({ mayoresRetrasos });
-  } catch (error) {
-    console.error("Error al calcular los mayores retrasos:", error);
-    res.status(500).json({ message: "Error interno del servidor" });
-  }
-};
-
 export const deletePartidaEdificio = async (req, res) => {
   try {
     const { id, obra, indexEdificio } = req.body;
@@ -617,5 +504,107 @@ export const updateEdificioFecha = async (req, res) => {
       message: "Error al actualizar la fecha",
       error: error.message,
     });
+  }
+};
+
+export const getMayoresRetrasos = async (req, res) => {
+  const { obraId } = req.params;
+
+  try {
+    // Obtener la obra por su ID
+    const obra = await Obra.findById(obraId);
+    if (!obra) {
+      return res.status(404).json({ message: "Obra no encontrada" });
+    }
+
+    const retrasos = [];
+
+    // Procesar etapas y partidas
+    obra.Etapas.forEach((etapa, index) => {
+      // Identificar la etapa con su número
+      const nombreEtapa = `Etapa ${index + 1}`;
+      let sumaPlan = 0;
+      let sumaEjecucion = 0;
+
+      // Iterar sobre partidas
+      etapa.Partidas.forEach((partida) => {
+        const fechaPlanFin = partida.Fechas?.Plan?.Fin
+          ? new Date(partida.Fechas.Plan.Fin)
+          : null;
+        const fechaEjecucionFin = partida.Fechas?.Ejecucion?.Fin
+          ? new Date(partida.Fechas.Ejecucion.Fin)
+          : null;
+        const diferenciaDias =
+          fechaPlanFin && fechaEjecucionFin
+            ? (fechaEjecucionFin - fechaPlanFin) / (1000 * 60 * 60 * 24)
+            : 0;
+
+        // Agregar retraso de la partida
+        retrasos.push({
+          Tipo: "Partida",
+          Nombre: partida.Nombre || "Sin nombre",
+          Etapa: nombreEtapa,
+          Fechas: partida.Fechas,
+          DiferenciaDias: diferenciaDias,
+        });
+
+        // Calcular días de planificación y ejecución
+        const inicioPlan = partida.Fechas?.Plan?.Inicio
+          ? new Date(partida.Fechas.Plan.Inicio)
+          : null;
+        const finPlan = fechaPlanFin;
+        if (inicioPlan && finPlan) {
+          sumaPlan += (finPlan - inicioPlan) / (1000 * 60 * 60 * 24);
+        }
+
+        const inicioEjecucion = partida.Fechas?.Ejecucion?.Inicio
+          ? new Date(partida.Fechas.Ejecucion.Inicio)
+          : null;
+        const finEjecucion = fechaEjecucionFin;
+        if (inicioEjecucion && finEjecucion) {
+          sumaEjecucion +=
+            (finEjecucion - inicioEjecucion) / (1000 * 60 * 60 * 24);
+        }
+      });
+
+      // Procesar edificios en la etapa
+      const edificios = obra.Edificios.filter(
+        (edificio) => edificio.Etapa === index + 1
+      );
+
+      edificios.forEach((edificio) => {
+        const fechaPlanFin = edificio.Fechas?.Plan?.Fin
+          ? new Date(edificio.Fechas.Plan.Fin)
+          : null;
+        const fechaEjecucionFin = edificio.Fechas?.Ejecucion?.Fin
+          ? new Date(edificio.Fechas.Ejecucion.Fin)
+          : null;
+        const diferenciaDias =
+          fechaPlanFin && fechaEjecucionFin
+            ? (fechaEjecucionFin - fechaPlanFin) / (1000 * 60 * 60 * 24)
+            : 0;
+
+        // Agregar retraso del edificio
+        retrasos.push({
+          Tipo: "Edificio",
+          Nombre: edificio.Nombre || "Sin nombre",
+          Etapa: nombreEtapa,
+          Fechas: edificio.Fechas,
+          DiferenciaDias: diferenciaDias,
+        });
+      });
+    });
+
+    // Consolidar mayores retrasos
+    const mayoresRetrasos = retrasos
+      .filter((item) => item.DiferenciaDias !== null)
+      .sort((a, b) => b.DiferenciaDias - a.DiferenciaDias)
+      .slice(0, 3);
+
+    // Responder con los resultados
+    res.json({ mayoresRetrasos });
+  } catch (error) {
+    console.error("Error al calcular los mayores retrasos:", error);
+    res.status(500).json({ message: "Error interno del servidor" });
   }
 };
