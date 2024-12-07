@@ -14,6 +14,7 @@ import {
   updateEdificioFecha,
 } from "../controllers/obra.controller.js";
 import { auth, verifyRole } from "../middlewares/auth.middleware.js";
+import { vista_general } from "../libs/vista_general.js";
 
 const router = express.Router();
 
@@ -59,6 +60,9 @@ router.delete("/deleteSubpartidaEdificio", deleteSubpartidaEdificio);
 
 //Ruta para fechas de edificio
 router.post("/fechaEdificio", updateEdificioFecha);
+
+
+router.get("/general/:obra", vista_general);
 
 
 export default router;
