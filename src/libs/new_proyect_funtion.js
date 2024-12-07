@@ -31,7 +31,7 @@ export const crearProyecto = (
                       Inicio: obtenerFechaActual(),
                       Fin: obtenerFechaActual(),
                     },
-                    Ejecución: {
+                    Ejecucion: {
                       Inicio: obtenerFechaActual(),
                       Fin: obtenerFechaActual(),
                     },
