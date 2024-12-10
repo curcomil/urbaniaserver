@@ -608,3 +608,14 @@ export const getMayoresRetrasos = async (req, res) => {
     res.status(500).json({ message: "Error interno del servidor" });
   }
 };
+
+export const getObrasName = async (req, res) => {
+  try {
+    const obras = await Obra.find().select("Nombre _id"); // Incluye solo "Nombre" e "ID"
+    res.status(200).json(obras);
+  } catch (error) {
+    res
+      .status(500)
+      .json({ error: "Error al obtener las obras", details: error.message });
+  }
+};

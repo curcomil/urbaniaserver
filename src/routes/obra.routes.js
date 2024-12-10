@@ -12,6 +12,7 @@ import {
   deletePartidaEdificio,
   deleteSubpartidaEdificio,
   updateEdificioFecha,
+  getObrasName,
 } from "../controllers/obra.controller.js";
 import { auth, verifyRole } from "../middlewares/auth.middleware.js";
 import { vista_general } from "../libs/vista_general.js";
@@ -36,7 +37,6 @@ router.post("/nueva", new_proyect);
 
 router.get("/mis-obras", getObrasByUser);
 
-
 router.get("/obras/:obraId/mayores-retrasos", getMayoresRetrasos);
 
 //Ruta para eliminar una partida
@@ -51,7 +51,6 @@ router.post("/fechaSubpartida", updateSubpartidaFecha);
 //Ruta para fechas de una partida
 router.post("/fechaPartida", updatePartidaFecha);
 
-
 //Ruta para eliminar Partida de Edificio
 router.delete("/deletePartidaEdificio", deletePartidaEdificio);
 
@@ -61,8 +60,8 @@ router.delete("/deleteSubpartidaEdificio", deleteSubpartidaEdificio);
 //Ruta para fechas de edificio
 router.post("/fechaEdificio", updateEdificioFecha);
 
-
 router.get("/general/:obra", vista_general);
 
+router.get("/ObrasAllNames", getObrasName);
 
 export default router;
