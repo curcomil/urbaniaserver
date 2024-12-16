@@ -611,7 +611,7 @@ export const getMayoresRetrasos = async (req, res) => {
 
 export const getObrasName = async (req, res) => {
   try {
-    const obras = await Obra.find().select("Nombre _id"); // Incluye solo "Nombre" e "ID"
+    const obras = await Obra.find().select("Nombre _id Fechas"); // Incluye solo "Nombre" e "ID"
     res.status(200).json(obras);
   } catch (error) {
     res
