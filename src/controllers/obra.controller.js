@@ -619,3 +619,81 @@ export const getObrasName = async (req, res) => {
       .json({ error: "Error al obtener las obras", details: error.message });
   }
 };
+
+export const eliminarProyecto = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    // Buscar y eliminar el proyecto por ID
+    const proyectoEliminado = await Obra.findByIdAndDelete(id);
+
+    if (!proyectoEliminado) {
+      return res.status(404).json({
+        message: "Proyecto no encontrado",
+      });
+    }
+
+    res.status(200).json({
+      message: "Proyecto eliminado exitosamente",
+      proyecto: proyectoEliminado,
+    });
+  } catch (error) {
+    console.error("Error al eliminar el proyecto:", error);
+    res.status(500).json({
+      message: "Error al eliminar el proyecto",
+      error: error.message,
+    });
+  }
+};
+
+export const actualizarEtapasEdificios = async (req, res) => {
+  const { id } = req.params; // ID del proyecto en la URL
+  const { edificios } = req.body; // Arreglo de edificios con sus etapas
+
+  try {
+    // Validar el arreglo de edificios
+    if (
+      !Array.isArray(edificios) ||
+      edificios.some(
+        (e) => !e.id || !Number.isInteger(e.etapas) || e.etapas < 0
+      )
+    ) {
+      return res.status(400).json({
+        message:
+          "El arreglo de edificios debe contener objetos con id válido y un número de etapas mayor o igual a 0.",
+      });
+    }
+
+    // Buscar el proyecto por ID
+    const proyecto = await Obra.findById(id);
+    if (!proyecto) {
+      return res.status(404).json({
+        message: "Proyecto no encontrado.",
+      });
+    }
+
+    // Actualizar las etapas de los edificios
+    proyecto.Edificios.forEach((edificio) => {
+      const edificioAActualizar = edificios.find(
+        (e) => e.id === edificio._id.toString()
+      );
+      if (edificioAActualizar) {
+        edificio.Etapa = edificioAActualizar.etapas;
+      }
+    });
+
+    // Guardar los cambios
+    const proyectoActualizado = await proyecto.save();
+
+    res.status(200).json({
+      message: "Etapas actualizadas exitosamente en los edificios.",
+      proyecto: proyectoActualizado,
+    });
+  } catch (error) {
+    console.error("Error al actualizar las etapas de los edificios:", error);
+    res.status(500).json({
+      message: "Error interno al actualizar las etapas de los edificios.",
+      error: error.message,
+    });
+  }
+};
