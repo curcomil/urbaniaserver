@@ -64,7 +64,14 @@ router.post("/fechaEdificio", updateEdificioFecha);
 
 router.get("/general/:obra", vista_general);
 
-router.get("/ObrasAllNames", getObrasName);
+router.get(
+  "/ObrasAllNames",
+  auth,
+  verifyRole(["Director", "Coordinador", "Control", "Obra"]),
+  getObrasName
+);
+
+router.get("/ObrasAllNamesNoProtect", getObrasName);
 
 router.delete("/DeleteObra/:id", eliminarProyecto);
 
