@@ -13,6 +13,8 @@ import {
   deleteSubpartidaEdificio,
   updateEdificioFecha,
   getObrasName,
+  eliminarProyecto,
+  actualizarEtapasEdificios,
 } from "../controllers/obra.controller.js";
 import { auth, verifyRole } from "../middlewares/auth.middleware.js";
 import { vista_general } from "../libs/vista_general.js";
@@ -63,5 +65,9 @@ router.post("/fechaEdificio", updateEdificioFecha);
 router.get("/general/:obra", vista_general);
 
 router.get("/ObrasAllNames", getObrasName);
+
+router.delete("/DeleteObra/:id", eliminarProyecto);
+
+router.post("/EdificiosEtapas/:id/etapas", actualizarEtapasEdificios);
 
 export default router;
