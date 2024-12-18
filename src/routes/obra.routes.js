@@ -18,6 +18,7 @@ import {
 } from "../controllers/obra.controller.js";
 import { auth, verifyRole } from "../middlewares/auth.middleware.js";
 import { vista_general } from "../libs/vista_general.js";
+import { updateDateHierarchyMiddleware } from "../middlewares/obra.middleware.js";
 
 const router = express.Router();
 
@@ -64,6 +65,9 @@ router.post("/fechaEdificio", updateEdificioFecha);
 
 router.get("/general/:obra", vista_general);
 
+router.post("/updateEje", updateDateHierarchyMiddleware);
+
+
 router.get(
   "/ObrasAllNames",
   auth,
@@ -76,5 +80,6 @@ router.get("/ObrasAllNamesNoProtect", getObrasName);
 router.delete("/DeleteObra/:id", eliminarProyecto);
 
 router.post("/EdificiosEtapas/:id/etapas", actualizarEtapasEdificios);
+
 
 export default router;

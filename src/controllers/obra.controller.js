@@ -609,6 +609,79 @@ export const getMayoresRetrasos = async (req, res) => {
   }
 };
 
+export const updateSubpartidaFechaEjecucion = async (req, res) => {
+  try {
+    const { subpartida, partida, obra, index, fecha, tipo, indexEdificio } =
+      req.body.data;
+
+    // Validar que el tipo sea "Inicio" o "Fin"
+    if (!["Inicio", "Fin"].includes(tipo)) {
+      return res.status(400).json({
+        message: "El tipo debe ser 'Inicio' o 'Fin'",
+      });
+    }
+
+    // Buscar la obra por ID
+    const obra_find = await Obra.findById(obra);
+    if (!obra_find) {
+      return res.status(404).json({ message: "Obra no encontrada" });
+    }
+
+    // Validar que el índice de la etapa sea válido
+    if (!obra_find.Etapas[index]) {
+      return res.status(400).json({ message: "Índice de etapa inválido" });
+    }
+
+    // Obtener la etapa correspondiente
+    const etapa = obra_find.Etapas[index];
+
+    // Buscar la partida por nombre dentro de la etapa
+    const ruta =
+      indexEdificio !== undefined
+        ? obra_find.Edificios[indexEdificio]?.Partidas
+        : etapa.Partidas;
+    console.log(indexEdificio);
+    const partida_find = ruta.find((p) => p.Nombre === partida);
+    if (!partida_find) {
+      return res.status(404).json({
+        message: "Partida no encontrada en la etapa especificada",
+      });
+    }
+
+    // Buscar la subpartida por nombre dentro de la partida
+    const subpartida_find = partida_find.Subpartidas.find(
+      (s) => s.Nombre === subpartida
+    );
+    if (!subpartida_find) {
+      return res.status(404).json({
+        message: "Subpartida no encontrada en la partida especificada",
+      });
+    }
+
+    // Asegurar que exista el campo Fechas.Plan
+    if (!subpartida_find.Fechas) {
+      subpartida_find.Fechas = {};
+    }
+    if (!subpartida_find.Fechas.Ejecucion) {
+      subpartida_find.Fechas.Ejecucion = {};
+    }
+
+    // Actualizar solo el campo específico sin borrar el otro
+    subpartida_find.Fechas.Ejecucion[tipo] = fecha;
+
+    // Guardar los cambios en la base de datos
+    await obra_find.save();
+
+    // Respuesta exitosa
+    res.status(200).json({
+      message: `Fecha '${tipo}' actualizada con éxito`,
+      subpartida: subpartida_find,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      message: "Error al actualizar la fecha",
+
 export const getObrasName = async (req, res) => {
   try {
     const obras = await Obra.find().select("Nombre _id Fechas"); // Incluye solo "Nombre" e "ID"
@@ -693,6 +766,7 @@ export const actualizarEtapasEdificios = async (req, res) => {
     console.error("Error al actualizar las etapas de los edificios:", error);
     res.status(500).json({
       message: "Error interno al actualizar las etapas de los edificios.",
+
       error: error.message,
     });
   }

@@ -180,8 +180,8 @@ export const crearProyecto = (
         Fin: fecha_de_fin,
       },
       Ejecucion: {
-        Inicio: obtenerFechaActual(),
-        Fin: obtenerFechaActual(),
+        Inicio: fecha_de_inicio,
+        Fin: fecha_de_fin,
       },
     },
     Etapas: crearEtapas(),
