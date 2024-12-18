@@ -302,3 +302,22 @@ export const deleteuser = async (req, res) => {
     res.status(500).json({ message: "Error eliminando el usuario" });
   }
 };
+
+export const getUserById = async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    // Buscar el usuario por su ID, incluyendo la referencia a "vista_de_obra"
+    const user = await User.findById(userId).populate("vista_de_obra");
+
+    if (!user) {
+      return res.status(404).json({ message: "Usuario no encontrado" });
+    }
+
+    // Si el usuario se encuentra, devolverlo
+    res.status(200).json(user);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error al obtener el usuario" });
+  }
+};

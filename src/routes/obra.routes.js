@@ -12,6 +12,9 @@ import {
   deletePartidaEdificio,
   deleteSubpartidaEdificio,
   updateEdificioFecha,
+  getObrasName,
+  eliminarProyecto,
+  actualizarEtapasEdificios,
 } from "../controllers/obra.controller.js";
 import { auth, verifyRole } from "../middlewares/auth.middleware.js";
 import { vista_general } from "../libs/vista_general.js";
@@ -61,6 +64,22 @@ router.delete("/deleteSubpartidaEdificio", deleteSubpartidaEdificio);
 router.post("/fechaEdificio", updateEdificioFecha);
 
 router.get("/general/:obra", vista_general);
+
 router.post("/updateEje", updateDateHierarchyMiddleware);
+
+
+router.get(
+  "/ObrasAllNames",
+  auth,
+  verifyRole(["Director", "Coordinador", "Control", "Obra"]),
+  getObrasName
+);
+
+router.get("/ObrasAllNamesNoProtect", getObrasName);
+
+router.delete("/DeleteObra/:id", eliminarProyecto);
+
+router.post("/EdificiosEtapas/:id/etapas", actualizarEtapasEdificios);
+
 
 export default router;
