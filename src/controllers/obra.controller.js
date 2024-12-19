@@ -765,15 +765,24 @@ export const actualizarEtapasEdificios = async (req, res) => {
       });
     }
 
-    // Actualizar las etapas de los edificios
-    proyecto.Edificios.forEach((edificio) => {
+    // Validar que el número de etapas no exceda el número de etapas en el proyecto
+    for (const edificio of proyecto.Edificios) {
       const edificioAActualizar = edificios.find(
         (e) => e.id === edificio._id.toString()
       );
+
       if (edificioAActualizar) {
+        if (edificioAActualizar.etapas > proyecto.Etapas.length) {
+          // Si el número de etapas es mayor, devolver error y salir
+          return res.status(400).json({
+            message: `El número de etapas no puede ser mayor que ${proyecto.Etapas.length} en el proyecto.`,
+          });
+        }
+
+        // Actualizar la etapa del edificio
         edificio.Etapa = edificioAActualizar.etapas;
       }
-    });
+    }
 
     // Guardar los cambios
     const proyectoActualizado = await proyecto.save();
@@ -784,10 +793,12 @@ export const actualizarEtapasEdificios = async (req, res) => {
     });
   } catch (error) {
     console.error("Error al actualizar las etapas de los edificios:", error);
-    res.status(500).json({
-      message: "Error interno al actualizar las etapas de los edificios.",
-
-      error: error.message,
-    });
+    if (!res.headersSent) {
+      // Solo enviar la respuesta si no se ha enviado aún
+      res.status(500).json({
+        message: "Error interno al actualizar las etapas de los edificios.",
+        error: error.message,
+      });
+    }
   }
 };
