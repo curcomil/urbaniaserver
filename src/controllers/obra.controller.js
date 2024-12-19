@@ -7,6 +7,7 @@ export const new_proyect = async (req, res) => {
     const {
       numero_de_etapas,
       numero_de_edificios,
+      numero_de_deptos,
       agregar_nivel,
       agregar_sotano,
       nombre_del_proyecto,
@@ -19,6 +20,7 @@ export const new_proyect = async (req, res) => {
     const obra_nueva = crearProyecto(
       numero_de_etapas,
       numero_de_edificios,
+      numero_de_deptos,
       agregar_nivel,
       agregar_sotano,
       nombre_del_proyecto,
