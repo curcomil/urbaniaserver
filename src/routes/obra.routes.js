@@ -15,6 +15,7 @@ import {
   getObrasName,
   eliminarProyecto,
   actualizarEtapasEdificios,
+  getObrasOnlyName,
 } from "../controllers/obra.controller.js";
 import { auth, verifyRole } from "../middlewares/auth.middleware.js";
 import { vista_general } from "../libs/vista_general.js";
@@ -67,7 +68,6 @@ router.get("/general/:obra", vista_general);
 
 router.post("/updateEje", updateDateHierarchyMiddleware);
 
-
 router.get(
   "/ObrasAllNames",
   auth,
@@ -75,11 +75,10 @@ router.get(
   getObrasName
 );
 
-router.get("/ObrasAllNamesNoProtect", getObrasName);
+router.get("/ObrasAllNamesNoProtect", getObrasOnlyName);
 
 router.delete("/DeleteObra/:id", eliminarProyecto);
 
 router.post("/EdificiosEtapas/:id/etapas", actualizarEtapasEdificios);
-
 
 export default router;
