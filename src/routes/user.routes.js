@@ -22,7 +22,7 @@ router.put("/update/:id", editUser);
 router.post("/logout", logout);
 router.get("/profile", getUserProfile);
 router.get("/allUsers", getAllUsers);
-router.delete("/deleteUSer/:id", deleteuser);
+router.delete("/deleteUser/:id", deleteuser);
 router.get("/user/:userId", getUserById);
 
 export default router;

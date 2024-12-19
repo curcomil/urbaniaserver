@@ -696,6 +696,17 @@ export const getObrasName = async (req, res) => {
   }
 };
 
+export const getObrasOnlyName = async (req, res) => {
+  try {
+    const obras = await Obra.find().select("Nombre _id"); // Incluye solo "Nombre" e "ID"
+    res.status(200).json(obras);
+  } catch (error) {
+    res
+      .status(500)
+      .json({ error: "Error al obtener las obras", details: error.message });
+  }
+};
+
 export const eliminarProyecto = async (req, res) => {
   const { id } = req.params;
 
