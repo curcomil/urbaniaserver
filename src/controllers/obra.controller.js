@@ -720,8 +720,14 @@ export const eliminarProyecto = async (req, res) => {
       });
     }
 
+    // Eliminar la obra de los usuarios que la tienen asignada
+    await User.updateMany(
+      { vista_de_obra: id },
+      { $pull: { vista_de_obra: id } }
+    );
+
     res.status(200).json({
-      message: "Proyecto eliminado exitosamente",
+      message: "Proyecto y asignaciones eliminadas exitosamente",
       proyecto: proyectoEliminado,
     });
   } catch (error) {
