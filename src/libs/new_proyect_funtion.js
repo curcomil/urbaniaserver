@@ -14,7 +14,8 @@ export const crearProyecto = (
   fecha_de_fin,
   m2_vendibles,
   m2_construccion,
-  direccion
+  direccion,
+  numero_de_deptos
 ) => {
   const obtenerFechaActual = () => new Date().toISOString().split("T")[0];
 
@@ -169,6 +170,7 @@ export const crearProyecto = (
     Datos: {
       M2_Construccion: m2_construccion,
       M2_Vendibles: m2_vendibles,
+      Numero_de_deptos: numero_de_deptos,
       Direccion: direccion,
     },
     Sotanos: sotanos,

@@ -21,6 +21,7 @@ const dbSchema = new mongoose.Schema({
   Datos: {
     M2_Construccion: { type: Number },
     M2_Vendibles: { type: Number },
+    Numero_de_deptos: { type: Number },
     Direccion: {},
   },
   Sotanos: { type: Number, required: true },

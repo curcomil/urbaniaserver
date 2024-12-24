@@ -15,6 +15,7 @@ export const new_proyect = async (req, res) => {
       m2_vendibles,
       m2_construccion,
       direccion,
+      numero_de_deptos,
     } = req.body;
     const obra_nueva = crearProyecto(
       numero_de_etapas,
@@ -26,7 +27,8 @@ export const new_proyect = async (req, res) => {
       fecha_de_fin,
       m2_vendibles,
       m2_construccion,
-      direccion
+      direccion,
+      numero_de_deptos
     );
     const nuevaObra = new Obra(obra_nueva);
     const save = await nuevaObra.save();
@@ -681,13 +683,26 @@ export const updateSubpartidaFechaEjecucion = async (req, res) => {
     console.error(error);
     res.status(500).json({
       message: "Error al actualizar la fecha",
-    }); // Corrección aquí: eliminación de la llave sobrante
+
+    });
+
   }
 };
 
 export const getObrasName = async (req, res) => {
   try {
     const obras = await Obra.find().select("Nombre _id Fechas"); // Incluye solo "Nombre" e "ID"
+    res.status(200).json(obras);
+  } catch (error) {
+    res
+      .status(500)
+      .json({ error: "Error al obtener las obras", details: error.message });
+  }
+};
+
+export const getObrasOnlyName = async (req, res) => {
+  try {
+    const obras = await Obra.find().select("Nombre _id"); // Incluye solo "Nombre" e "ID"
     res.status(200).json(obras);
   } catch (error) {
     res
@@ -709,8 +724,14 @@ export const eliminarProyecto = async (req, res) => {
       });
     }
 
+    // Eliminar la obra de los usuarios que la tienen asignada
+    await User.updateMany(
+      { vista_de_obra: id },
+      { $pull: { vista_de_obra: id } }
+    );
+
     res.status(200).json({
-      message: "Proyecto eliminado exitosamente",
+      message: "Proyecto y asignaciones eliminadas exitosamente",
       proyecto: proyectoEliminado,
     });
   } catch (error) {
@@ -748,15 +769,24 @@ export const actualizarEtapasEdificios = async (req, res) => {
       });
     }
 
-    // Actualizar las etapas de los edificios
-    proyecto.Edificios.forEach((edificio) => {
+    // Validar que el número de etapas no exceda el número de etapas en el proyecto
+    for (const edificio of proyecto.Edificios) {
       const edificioAActualizar = edificios.find(
         (e) => e.id === edificio._id.toString()
       );
+
       if (edificioAActualizar) {
+        if (edificioAActualizar.etapas > proyecto.Etapas.length) {
+          // Si el número de etapas es mayor, devolver error y salir
+          return res.status(400).json({
+            message: `El número de etapas no puede ser mayor que ${proyecto.Etapas.length} en el proyecto.`,
+          });
+        }
+
+        // Actualizar la etapa del edificio
         edificio.Etapa = edificioAActualizar.etapas;
       }
-    });
+    }
 
     // Guardar los cambios
     const proyectoActualizado = await proyecto.save();
@@ -767,10 +797,12 @@ export const actualizarEtapasEdificios = async (req, res) => {
     });
   } catch (error) {
     console.error("Error al actualizar las etapas de los edificios:", error);
-    res.status(500).json({
-      message: "Error interno al actualizar las etapas de los edificios.",
-
-      error: error.message,
-    });
+    if (!res.headersSent) {
+      // Solo enviar la respuesta si no se ha enviado aún
+      res.status(500).json({
+        message: "Error interno al actualizar las etapas de los edificios.",
+        error: error.message,
+      });
+    }
   }
 };
