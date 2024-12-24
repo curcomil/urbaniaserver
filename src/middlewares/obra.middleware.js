@@ -12,6 +12,7 @@ export const updateDateHierarchyMiddleware = async (req, res) => {
       tipo,
       indexEdificio,
       nivel = "Subpartida",
+      array_subpartidas,
     } = req.body;
 
     // Validaciones iniciales
@@ -49,10 +50,50 @@ export const updateDateHierarchyMiddleware = async (req, res) => {
       const nuevaFecha = new Date(fechaNueva);
       const inicioRango = new Date(fechaInicioPadre);
       const finRango = new Date(fechaFinPadre);
+      const subpartidas = array_subpartidas;
 
-      return tipo === "Inicio"
-        ? nuevaFecha < inicioRango
-        : nuevaFecha > finRango;
+      // Convertir fechas a formato de día para comparación sencilla
+      const nuevaFechaDia = nuevaFecha.toISOString().split("T")[0];
+      const inicioRangoDia = inicioRango.toISOString().split("T")[0];
+      const finRangoDia = finRango.toISOString().split("T")[0];
+
+      // Validación de rango (primera condición)
+      if (tipo === "Inicio" && nuevaFechaDia < inicioRangoDia) {
+        return true;
+      }
+      if (tipo === "Fin" && nuevaFechaDia > finRangoDia) {
+        return true;
+      }
+
+      // Obtener las fechas mínimas y máximas de las subpartidas
+      const fechasInicio = subpartidas
+        .map((s) => s.Fechas?.Ejecucion?.Inicio)
+        .filter(Boolean)
+        .map((fecha) => new Date(fecha).toISOString().split("T")[0]);
+
+      const fechasFin = subpartidas
+        .map((s) => s.Fechas?.Ejecucion?.Fin)
+        .filter(Boolean)
+        .map((fecha) => new Date(fecha).toISOString().split("T")[0]);
+
+      // Calcular las fechas de inicio y fin del padre basadas en las subpartidas
+      const nuevaFechaInicioPadre = fechasInicio.length
+        ? Math.min(...fechasInicio)
+        : inicioRangoDia;
+      const nuevaFechaFinPadre = fechasFin.length
+        ? Math.max(...fechasFin)
+        : finRangoDia;
+
+      // Validar si las fechas del padre están desactualizadas
+      if (
+        nuevaFechaInicioPadre !== inicioRangoDia ||
+        nuevaFechaFinPadre !== finRangoDia
+      ) {
+        return true;
+      }
+
+      // Si no hay problemas, retornar false
+      return false;
     };
 
     // Función para actualizar fechas recursivamente
