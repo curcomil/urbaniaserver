@@ -683,9 +683,7 @@ export const updateSubpartidaFechaEjecucion = async (req, res) => {
     console.error(error);
     res.status(500).json({
       message: "Error al actualizar la fecha",
-
     });
-
   }
 };
 

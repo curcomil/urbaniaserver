@@ -20,6 +20,7 @@ import {
 import { auth, verifyRole } from "../middlewares/auth.middleware.js";
 import { vista_general } from "../libs/vista_general.js";
 import { updateDateHierarchyMiddleware } from "../middlewares/obra.middleware.js";
+import { fechas_finales_partida } from "../libs/fechas_finales_partida.js";
 
 const router = express.Router();
 
@@ -80,5 +81,7 @@ router.get("/ObrasAllNamesNoProtect", getObrasOnlyName);
 router.delete("/DeleteObra/:id", eliminarProyecto);
 
 router.post("/EdificiosEtapas/:id/etapas", actualizarEtapasEdificios);
+
+router.post("/fechas_finales_partida", fechas_finales_partida);
 
 export default router;
