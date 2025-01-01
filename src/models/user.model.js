@@ -18,10 +18,10 @@ const userSchema = new mongoose.Schema(
       },
     ],
     isAdmin: { type: Boolean, default: false },
+    isLocked: { type: Boolean, default: false },
   },
   { timestamps: true } // Agrega createdAt y updatedAt automáticamente
 );
 
-// Asegúrate de exportar el modelo
 const User = mongoose.model("User", userSchema);
 export default User;

@@ -321,3 +321,36 @@ export const getUserById = async (req, res) => {
     res.status(500).json({ message: "Error al obtener el usuario" });
   }
 };
+
+export const toggleLockUser = async (req, res) => {
+  const { userId } = req.params;
+  const { isLocked } = req.body;
+
+  if (typeof isLocked !== "boolean") {
+    return res
+      .status(400)
+      .json({ message: "El campo 'isLocked' debe ser un booleano." });
+  }
+
+  try {
+    const user = await User.findByIdAndUpdate(
+      userId,
+      { isLocked },
+      { new: true }
+    );
+
+    if (!user) {
+      return res.status(404).json({ message: "Usuario no encontrado" });
+    }
+
+    res.status(200).json({
+      message: `Usuario ${isLocked ? "bloqueado" : "desbloqueado"} con éxito`,
+      user,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Error al cambiar el estado del usuario",
+      error: error.message,
+    });
+  }
+};

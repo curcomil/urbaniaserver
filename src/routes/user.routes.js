@@ -9,6 +9,7 @@ import {
   getAllUsers,
   deleteuser,
   getUserById,
+  toggleLockUser,
 } from "../controllers/auth.controller.js";
 import { validateSchema } from "../middlewares/validator.middlewares.js";
 import { loginSchema, registerSchema } from "../schemas/auth.schema.js";
@@ -24,5 +25,6 @@ router.get("/profile", getUserProfile);
 router.get("/allUsers", getAllUsers);
 router.delete("/deleteUser/:id", deleteuser);
 router.get("/user/:userId", getUserById);
+router.patch("/users/:userId/lock", toggleLockUser);
 
 export default router;
