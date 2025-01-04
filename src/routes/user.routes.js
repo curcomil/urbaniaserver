@@ -13,6 +13,7 @@ import {
 } from "../controllers/auth.controller.js";
 import { validateSchema } from "../middlewares/validator.middlewares.js";
 import { loginSchema, registerSchema } from "../schemas/auth.schema.js";
+import { auth, verifyRole } from "../middlewares/auth.middleware.js";
 
 const router = Router();
 
@@ -25,6 +26,11 @@ router.get("/profile", getUserProfile);
 router.get("/allUsers", getAllUsers);
 router.delete("/deleteUser/:id", deleteuser);
 router.get("/user/:userId", getUserById);
-router.patch("/users/:userId/lock", toggleLockUser);
+router.patch(
+  "/users/:userId/lock",
+  auth,
+  verifyRole(["Coordinador"]),
+  toggleLockUser
+);
 
 export default router;
