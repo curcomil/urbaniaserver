@@ -18,6 +18,7 @@ const SubpartidaSchema = new mongoose.Schema({
 
 const dbSchema = new mongoose.Schema({
   Nombre: { type: String, required: true },
+  isLocked: { type: Boolean, default: false },
   Datos: {
     M2_Construccion: { type: Number },
     M2_Vendibles: { type: Number },
@@ -100,7 +101,6 @@ const dbSchema = new mongoose.Schema({
             type: String,
             enum: ["completa", "actual", "pendiente"],
             default: "pendiente",
-            isLocked: { type: Boolean, default: false },
           },
         },
       ],
