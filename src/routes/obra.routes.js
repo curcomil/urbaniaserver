@@ -17,7 +17,7 @@ import {
   actualizarEtapasEdificios,
   getObrasOnlyName,
   updatePartidaFechaEje,
-  toggleLockobra,
+  toggleLockObra,
 } from "../controllers/obra.controller.js";
 import { auth, verifyRole } from "../middlewares/auth.middleware.js";
 import { vista_general } from "../libs/vista_general.js";
@@ -87,7 +87,6 @@ router.post("/EdificiosEtapas/:id/etapas", actualizarEtapasEdificios);
 
 router.post("/fechas_finales_partida", fechas_finales_partida);
 
-
 router.post("/fechaPartidaEje", updatePartidaFechaEje);
 
 router.post("/fechas_finales_eje", fechas_finales_eje);
@@ -96,8 +95,7 @@ router.patch(
   "/obras/:obraId/lock",
   auth,
   verifyRole(["Coordinador"]),
-  toggleLockobra
+  toggleLockObra
 );
-
 
 export default router;
