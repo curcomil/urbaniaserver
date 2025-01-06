@@ -107,6 +107,7 @@ export const login = async (req, res) => {
       id: userFound._id,
       email: userFound.email,
       token: token,
+      perfil: userFound.perfil,
       isadmin: userFound.isAdmin ? userFound.isAdmin : undefined,
     });
   } catch (error) {
@@ -128,6 +129,7 @@ export const verifyToken = async (req, res) => {
     return res.json({
       id: userFound._id,
       email: userFound.email,
+      perfil: userFound.perfil,
     });
   });
 };
