@@ -113,64 +113,7 @@ export const partidas_edificios = [
   },
   {
     Nombre: "Aplanados",
-    Subpartidas: [
-      {
-        Nombre: "Pasillos",
-        Fechas: {
-          Plan: {
-            Inicio: obtenerFechaActual(),
-            Fin: obtenerFechaActual(),
-          },
-          Ejecución: {
-            Inicio: obtenerFechaActual(),
-            Fin: obtenerFechaActual(),
-          },
-        },
-        Etapa: 1,
-      },
-      {
-        Nombre: "Escaleras",
-        Fechas: {
-          Plan: {
-            Inicio: obtenerFechaActual(),
-            Fin: obtenerFechaActual(),
-          },
-          Ejecución: {
-            Inicio: obtenerFechaActual(),
-            Fin: obtenerFechaActual(),
-          },
-        },
-        Etapa: 1,
-      },
-      {
-        Nombre: "Roof Garden",
-        Fechas: {
-          Plan: {
-            Inicio: obtenerFechaActual(),
-            Fin: obtenerFechaActual(),
-          },
-          Ejecución: {
-            Inicio: obtenerFechaActual(),
-            Fin: obtenerFechaActual(),
-          },
-        },
-        Etapa: 1,
-      },
-      {
-        Nombre: "Fachadas",
-        Fechas: {
-          Plan: {
-            Inicio: obtenerFechaActual(),
-            Fin: obtenerFechaActual(),
-          },
-          Ejecución: {
-            Inicio: obtenerFechaActual(),
-            Fin: obtenerFechaActual(),
-          },
-        },
-        Etapa: 1,
-      },
-    ],
+    Subpartidas: ["Pasillos", "Escaleras", "Roof Garden", "Fachadas"],
   },
   {
     Nombre: "I. Eléctrica",
