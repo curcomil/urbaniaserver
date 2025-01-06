@@ -16,6 +16,7 @@ import {
   eliminarProyecto,
   actualizarEtapasEdificios,
   getObrasOnlyName,
+  toggleLockobra,
 } from "../controllers/obra.controller.js";
 import { auth, verifyRole } from "../middlewares/auth.middleware.js";
 import { vista_general } from "../libs/vista_general.js";
@@ -83,5 +84,12 @@ router.delete("/DeleteObra/:id", eliminarProyecto);
 router.post("/EdificiosEtapas/:id/etapas", actualizarEtapasEdificios);
 
 router.post("/fechas_finales_partida", fechas_finales_partida);
+
+router.patch(
+  "/obras/:obraId/lock",
+  auth,
+  verifyRole(["Coordinador"]),
+  toggleLockobra
+);
 
 export default router;

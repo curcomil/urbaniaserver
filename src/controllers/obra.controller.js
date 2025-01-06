@@ -804,3 +804,36 @@ export const actualizarEtapasEdificios = async (req, res) => {
     }
   }
 };
+
+export const toggleLockobra = async (req, res) => {
+  const { obraId } = req.params;
+  const { isLocked } = req.body;
+
+  if (typeof isLocked !== "boolean") {
+    return res
+      .status(400)
+      .json({ message: "El campo 'isLocked' debe ser un booleano." });
+  }
+
+  try {
+    const obra = await Obra.findByIdAndUpdate(
+      obraId,
+      { isLocked },
+      { new: true }
+    );
+
+    if (!obra) {
+      return res.status(404).json({ message: "obra no encontrado" });
+    }
+
+    res.status(200).json({
+      message: `obra ${isLocked ? "bloqueado" : "desbloqueado"} con éxito`,
+      obra,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Error al cambiar el estado del obra",
+      error: error.message,
+    });
+  }
+};

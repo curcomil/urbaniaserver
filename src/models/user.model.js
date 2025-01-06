@@ -18,7 +18,6 @@ const userSchema = new mongoose.Schema(
       },
     ],
     isAdmin: { type: Boolean, default: false },
-    isLocked: { type: Boolean, default: false },
   },
   { timestamps: true } // Agrega createdAt y updatedAt automáticamente
 );
