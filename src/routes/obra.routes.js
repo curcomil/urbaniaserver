@@ -16,11 +16,13 @@ import {
   eliminarProyecto,
   actualizarEtapasEdificios,
   getObrasOnlyName,
+  updatePartidaFechaEje,
 } from "../controllers/obra.controller.js";
 import { auth, verifyRole } from "../middlewares/auth.middleware.js";
 import { vista_general } from "../libs/vista_general.js";
 import { updateDateHierarchyMiddleware } from "../middlewares/obra.middleware.js";
 import { fechas_finales_partida } from "../libs/fechas_finales_partida.js";
+import { fechas_finales_eje } from "../libs/fechas_finales_eje.js";
 
 const router = express.Router();
 
@@ -83,5 +85,9 @@ router.delete("/DeleteObra/:id", eliminarProyecto);
 router.post("/EdificiosEtapas/:id/etapas", actualizarEtapasEdificios);
 
 router.post("/fechas_finales_partida", fechas_finales_partida);
+
+router.post("/fechaPartidaEje", updatePartidaFechaEje);
+
+router.post("/fechas_finales_eje", fechas_finales_eje);
 
 export default router;
