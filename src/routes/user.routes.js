@@ -12,6 +12,7 @@ import {
 } from "../controllers/auth.controller.js";
 import { validateSchema } from "../middlewares/validator.middlewares.js";
 import { loginSchema, registerSchema } from "../schemas/auth.schema.js";
+import { auth, verifyRole } from "../middlewares/auth.middleware.js";
 
 const router = Router();
 

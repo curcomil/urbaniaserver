@@ -100,6 +100,7 @@ const dbSchema = new mongoose.Schema({
             type: String,
             enum: ["completa", "actual", "pendiente"],
             default: "pendiente",
+            isLocked: { type: Boolean, default: false },
           },
         },
       ],
