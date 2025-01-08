@@ -24,6 +24,7 @@ import { vista_general } from "../libs/vista_general.js";
 import { updateDateHierarchyMiddleware } from "../middlewares/obra.middleware.js";
 import { fechas_finales_partida } from "../libs/fechas_finales_partida.js";
 import { fechas_finales_eje } from "../libs/fechas_finales_eje.js";
+import { fechas_finales_edi } from "../libs/fechas_finales_edi.js";
 
 const router = express.Router();
 
@@ -97,5 +98,7 @@ router.patch(
   verifyRole(["Coordinador"]),
   toggleLockObra
 );
+
+router.post("/fechas_finales_edi", fechas_finales_edi);
 
 export default router;
