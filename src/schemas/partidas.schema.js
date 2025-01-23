@@ -14,7 +14,10 @@ export const partidas_fijas = [
     Subpartidas: [
       "Cimentación profunda",
       "Recimentación",
+      "Impermeabilizante",
       "Trabes y contra trabes",
+      "I. Eléctrica",
+      "I. Hidrosanitaria",
     ],
   },
   {
@@ -44,6 +47,7 @@ export const partidas_fijas = [
       "I. Gas",
       "Acabados",
       "Pintura",
+      "Cerámico",
     ],
   },
   {
@@ -88,6 +92,7 @@ export const partidas_dinamicas = [
       "Albañilerías",
       "Herrerías",
       "Impermeabilizante",
+      "Obturacion",
       "I. Eléctrica",
       "I. Hidrosanitaria",
       "I. Gas",
@@ -113,19 +118,19 @@ export const partidas_edificios = [
   },
   {
     Nombre: "Aplanados",
-    Subpartidas: ["Pasillos", "Escaleras", "Roof Garden", "Fachadas"],
+    Subpartidas: ["Pasillos", "Escaleras", "Roof Garden"],
   },
   {
     Nombre: "I. Eléctrica",
-    Subpartidas: ["Planta Baja", "Azotea"],
+    Subpartidas: ["Planta Baja", "Azotea", "Tinaqueras"],
   },
   {
     Nombre: "I. Hidrosanitaria",
-    Subpartidas: ["Planta Baja", "Azotea"],
+    Subpartidas: ["Planta Baja", "Azotea", "Tinaqueras"],
   },
   {
     Nombre: "I. Gas",
-    Subpartidas: ["Planta Baja", "Azotea"],
+    Subpartidas: ["Planta Baja", "Azotea", "Tinaqueras"],
   },
   {
     Nombre: "Cerámica",
@@ -142,6 +147,10 @@ export const partidas_edificios = [
   {
     Nombre: "Tirol",
     Subpartidas: ["Planta Baja", "Azotea"],
+  },
+  {
+    Nombre: "Fachadas",
+    Subpartidas: ["Albañileria", "Aplanados", "Cerámica", "Pintura"],
   },
   {
     Nombre: "Puertas",
@@ -161,10 +170,10 @@ export const partidas_edificios = [
   },
   {
     Nombre: "Impearmeabilizante",
-    Subpartidas: ["Planta Baja", "Roof Garden"],
+    Subpartidas: ["Planta Baja", "Roof Garden", "Tinaqueras"],
   },
   {
     Nombre: "Limpiezas",
-    Subpartidas: ["Planta Baja", "Roof Garden"],
+    Subpartidas: ["Planta Baja", "Roof Garden", "Tinaqueras"],
   },
 ];
